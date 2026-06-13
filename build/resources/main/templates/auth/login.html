@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Вход')}"></head>
+<body style="background:linear-gradient(135deg,#065f46 0%,#059669 55%,#10b981 100%); min-height:100vh;">
+<div class="container d-flex justify-content-center align-items-center" style="min-height:100vh;">
+    <div class="card shadow-lg" style="width:100%;max-width:420px;">
+
+        <div class="card-header text-center py-4 bg-dark text-white" style="border-radius:.6rem .6rem 0 0;">
+            <div style="font-size:2.5rem;margin-bottom:.3rem;">
+                <i class="fa-solid fa-building-columns"></i>
+            </div>
+            <h4 class="mb-0 fw-bold">Банкова система</h4>
+            <small class="opacity-75">Вход в системата</small>
+        </div>
+
+        <div class="card-body p-4">
+            <div th:if="${param.error}" class="alert alert-danger d-flex gap-2 align-items-center">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                Грешно потребителско име или парола.
+            </div>
+            <div th:if="${param.logout}" class="alert alert-info d-flex gap-2 align-items-center">
+                <i class="fa-solid fa-circle-check"></i>
+                Успешно излязохте от системата.
+            </div>
+            <div th:if="${param.registered}" class="alert alert-success d-flex gap-2 align-items-center">
+                <i class="fa-solid fa-circle-check"></i>
+                Регистрацията е успешна! Можете да влезете.
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Потребителско име</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-user text-muted"></i></span>
+                        <input type="text" class="form-control" name="username" autofocus required
+                               placeholder="Въведете потребителско име"/>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Парола</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fa-solid fa-lock text-muted"></i></span>
+                        <input type="password" class="form-control" name="password" required
+                               placeholder="Въведете парола"/>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark w-100 fw-semibold">
+                    <i class="fa-solid fa-right-to-bracket me-2"></i>Вход
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <small class="text-muted">Нямате акаунт?</small>
+                <a th:href="@{/register}" class="ms-1 fw-semibold text-decoration-none">Регистрация</a>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

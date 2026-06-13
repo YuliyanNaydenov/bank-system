@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Кредитен вид')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container pb-4">
+
+    <div class="page-title-bar mb-4">
+        <h2>
+            <i class="fa-solid fa-sliders"></i>
+            <span th:if="${isEdit}">Редактиране на кредитен вид</span>
+            <span th:unless="${isEdit}">Нов кредитен вид</span>
+        </h2>
+        <a th:href="@{/credit-types}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Назад
+        </a>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-header bg-dark text-white">
+            <i class="fa-solid fa-pen-to-square me-1"></i>Параметри
+        </div>
+        <div class="card-body">
+            <form th:object="${creditType}" method="post"
+                  th:action="${isEdit} ? @{/credit-types/{id}/edit(id=${creditTypeId})} : @{/credit-types/new}"
+                  novalidate>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Име</label>
+                        <input type="text" class="form-control" th:field="*{name}"
+                               th:classappend="${#fields.hasErrors('name')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{name}"></div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label fw-semibold">Годишна лихва (%)</label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" th:field="*{annualInterestRate}"
+                               th:classappend="${#fields.hasErrors('annualInterestRate')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{annualInterestRate}"></div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label fw-semibold">Максимална сума (лв.)</label>
+                        <input type="number" step="0.01" min="0.01" class="form-control" th:field="*{maxAmount}"
+                               th:classappend="${#fields.hasErrors('maxAmount')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{maxAmount}"></div>
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label fw-semibold">Максимален срок (месеци)</label>
+                        <input type="number" min="1" class="form-control" th:field="*{maxTermMonths}"
+                               th:classappend="${#fields.hasErrors('maxTermMonths')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{maxTermMonths}"></div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-dark"><i class="fa-solid fa-floppy-disk me-1"></i>Запази</button>
+                    <a th:href="@{/credit-types}" class="btn btn-outline-secondary">Отказ</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

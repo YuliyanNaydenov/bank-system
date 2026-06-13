@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Служители')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-user-tie"></i> Служители</h2>
+        <a th:href="@{/employees/new}" class="btn btn-success btn-sm">
+            <i class="fa-solid fa-plus me-1"></i>Нов служител
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th><th>Потребителско име</th><th>Роли</th><th>Статус</th><th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${employees}">
+                        <td class="text-muted" th:text="${e.id}"></td>
+                        <td class="fw-semibold" th:text="${e.username}"></td>
+                        <td><span class="badge bg-secondary" th:text="${e.roles}"></span></td>
+                        <td>
+                            <span th:if="${e.enabled}" class="badge bg-success">Активен</span>
+                            <span th:unless="${e.enabled}" class="badge bg-secondary">Неактивен</span>
+                        </td>
+                        <td>
+                            <form th:if="${e.enabled}" th:action="@{/employees/{id}/disable(id=${e.id})}" method="post" class="d-inline"
+                                  data-confirm="Деактивиране на служителя? Няма да може да влиза в системата.">
+                                <button type="submit" class="btn btn-outline-dark btn-action me-1">
+                                    <i class="fa-solid fa-ban me-1"></i>Деактивирай
+                                </button>
+                            </form>
+                            <form th:unless="${e.enabled}" th:action="@{/employees/{id}/enable(id=${e.id})}" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-success btn-action me-1">
+                                    <i class="fa-solid fa-check me-1"></i>Активирай
+                                </button>
+                            </form>
+                            <form th:action="@{/employees/{id}/delete(id=${e.id})}" method="post" class="d-inline"
+                                  data-confirm="Изтриване на служителя?">
+                                <button type="submit" class="btn btn-danger btn-action">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(employees)}">
+                        <td colspan="5"><div class="empty-state"><i class="fa-solid fa-user-tie"></i><br>Няма регистрирани служители.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments :: confirmModal}"></div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

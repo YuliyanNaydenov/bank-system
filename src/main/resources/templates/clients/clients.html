@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Клиенти')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-users"></i> Клиенти</h2>
+        <div class="d-flex gap-2">
+            <a th:href="@{/clients/new/individual}" class="btn btn-success btn-sm">
+                <i class="fa-solid fa-user me-1"></i>Физическо лице
+            </a>
+            <a th:href="@{/clients/new/company}" class="btn btn-success btn-sm">
+                <i class="fa-solid fa-building me-1"></i>Юридическо лице
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th><th>Вид</th><th>Име</th><th>ЕГН / ЕИК</th>
+                        <th>Потребител</th><th>Сметки</th><th>Кредити</th><th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${clients}">
+                        <td class="text-muted" th:text="${c.id}"></td>
+                        <td>
+                            <span th:if="${c.clientType == 'INDIVIDUAL'}" class="badge bg-info text-dark">Физическо</span>
+                            <span th:if="${c.clientType == 'COMPANY'}" class="badge bg-warning text-dark">Юридическо</span>
+                        </td>
+                        <td th:text="${c.displayName}"></td>
+                        <td><code th:text="${c.identifier}"></code></td>
+                        <td th:text="${c.username != null ? c.username : '—'}"></td>
+                        <td th:text="${c.accountsCount}"></td>
+                        <td th:text="${c.creditsCount}"></td>
+                        <td>
+                            <a th:if="${c.clientType == 'INDIVIDUAL'}"
+                               th:href="@{/clients/{id}/edit/individual(id=${c.id})}"
+                               class="btn btn-warning btn-action me-1"><i class="fa-solid fa-pen"></i></a>
+                            <a th:if="${c.clientType == 'COMPANY'}"
+                               th:href="@{/clients/{id}/edit/company(id=${c.id})}"
+                               class="btn btn-warning btn-action me-1"><i class="fa-solid fa-pen"></i></a>
+                            <form sec:authorize="hasAuthority('admin')"
+                                  th:action="@{/clients/{id}/delete(id=${c.id})}" method="post" class="d-inline"
+                                  data-confirm="Изтриване на клиент? Това ще изтрие и сметките/кредитите му.">
+                                <button type="submit" class="btn btn-danger btn-action">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(clients)}">
+                        <td colspan="8"><div class="empty-state"><i class="fa-solid fa-users"></i><br>Няма намерени клиенти.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments :: confirmModal}"></div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

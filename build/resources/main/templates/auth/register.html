@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Регистрация')}"></head>
+<body style="background:linear-gradient(135deg,#065f46 0%,#059669 55%,#10b981 100%); min-height:100vh;">
+<div class="container d-flex justify-content-center align-items-center py-4" style="min-height:100vh;">
+    <div class="card shadow-lg" style="width:100%;max-width:480px;">
+
+        <div class="card-header text-center py-4 bg-dark text-white" style="border-radius:.6rem .6rem 0 0;">
+            <div style="font-size:2.2rem;margin-bottom:.3rem;">
+                <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <h4 class="mb-0 fw-bold">Регистрация на клиент</h4>
+            <small class="opacity-75">Физическо лице</small>
+        </div>
+
+        <div class="card-body p-4">
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <form th:action="@{/register}" th:object="${form}" method="post" novalidate>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Име</label>
+                        <input type="text" class="form-control" th:field="*{firstName}"
+                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{firstName}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Фамилия</label>
+                        <input type="text" class="form-control" th:field="*{lastName}"
+                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{lastName}"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">ЕГН</label>
+                        <input type="text" class="form-control" th:field="*{egn}"
+                               th:classappend="${#fields.hasErrors('egn')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{egn}"></div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Потребителско име</label>
+                        <input type="text" class="form-control" th:field="*{username}"
+                               th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{username}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Парола</label>
+                        <input type="password" class="form-control" th:field="*{password}"
+                               th:classappend="${#fields.hasErrors('password')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{password}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Повтори паролата</label>
+                        <input type="password" class="form-control" th:field="*{confirmPassword}"
+                               th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark w-100 fw-semibold mt-4">
+                    <i class="fa-solid fa-user-plus me-2"></i>Регистрирай се
+                </button>
+            </form>
+
+            <div class="text-center mt-3">
+                <small class="text-muted">Вече имате акаунт?</small>
+                <a th:href="@{/login}" class="ms-1 fw-semibold text-decoration-none">Вход</a>
+            </div>
+        </div>
+    </div>
+</div>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

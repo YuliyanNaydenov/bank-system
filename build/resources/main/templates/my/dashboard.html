@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Моят профил')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container pb-4">
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h3 class="mb-1"><i class="fa-solid fa-user me-2"></i><span th:text="${client.displayName}"></span></h3>
+            <span class="text-muted">ЕГН/ЕИК: </span><code th:text="${client.identifier}"></code>
+        </div>
+    </div>
+
+    <!-- ── Моите сметки ───────────────────────────────────────────────────── -->
+    <h4 class="mb-3"><i class="fa-solid fa-wallet me-1"></i>Моите сметки</h4>
+    <div class="card mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr><th>IBAN</th><th>Наличност</th><th>Статус</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${accounts}">
+                        <td><code th:text="${a.iban}"></code></td>
+                        <td th:text="${#numbers.formatDecimal(a.balance,1,2)} + ' лв.'"></td>
+                        <td>
+                            <span th:if="${a.status == 'ACTIVE'}" class="badge bg-success">Активна</span>
+                            <span th:if="${a.status == 'CLOSED'}" class="badge bg-secondary">Закрита</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(accounts)}">
+                        <td colspan="3"><div class="empty-state"><i class="fa-solid fa-wallet"></i><br>Нямате сметки.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ── Моите кредити ──────────────────────────────────────────────────── -->
+    <h4 class="mb-3"><i class="fa-solid fa-hand-holding-dollar me-1"></i>Моите кредити</h4>
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr><th>#</th><th>Вид</th><th>Сума</th><th>Срок</th><th>Вноска</th><th>Платени</th><th>Статус</th><th></th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${credits}">
+                        <td class="text-muted" th:text="${c.id}"></td>
+                        <td th:text="${c.creditTypeName}"></td>
+                        <td th:text="${#numbers.formatDecimal(c.amount,1,2)} + ' лв.'"></td>
+                        <td th:text="${c.termMonths} + ' мес.'"></td>
+                        <td th:text="${#numbers.formatDecimal(c.monthlyPayment,1,2)} + ' лв.'"></td>
+                        <td th:text="${c.paidInstallments} + '/' + ${c.termMonths}"></td>
+                        <td>
+                            <span th:if="${c.status == 'ACTIVE'}" class="badge bg-warning text-dark">Активен</span>
+                            <span th:if="${c.status == 'PAID'}" class="badge bg-success">Изплатен</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/my/credits/{id}(id=${c.id})}" class="btn btn-outline-dark btn-action">
+                                <i class="fa-solid fa-eye me-1"></i>План
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(credits)}">
+                        <td colspan="8"><div class="empty-state"><i class="fa-solid fa-hand-holding-dollar"></i><br>Нямате кредити.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

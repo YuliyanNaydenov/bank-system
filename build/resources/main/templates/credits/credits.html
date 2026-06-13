@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Кредити')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-hand-holding-dollar"></i> Кредити</h2>
+        <a th:href="@{/credits/new}" class="btn btn-success btn-sm">
+            <i class="fa-solid fa-plus me-1"></i>Отпускане на кредит
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th><th>Клиент</th><th>Вид</th><th>Сума</th><th>Срок</th>
+                        <th>Вноска</th><th>Платени</th><th>Статус</th><th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${credits}">
+                        <td class="text-muted" th:text="${c.id}"></td>
+                        <td th:text="${c.clientName}"></td>
+                        <td th:text="${c.creditTypeName}"></td>
+                        <td th:text="${#numbers.formatDecimal(c.amount,1,2)} + ' лв.'"></td>
+                        <td th:text="${c.termMonths} + ' мес.'"></td>
+                        <td th:text="${#numbers.formatDecimal(c.monthlyPayment,1,2)} + ' лв.'"></td>
+                        <td th:text="${c.paidInstallments} + '/' + ${c.termMonths}"></td>
+                        <td>
+                            <span th:if="${c.status == 'ACTIVE'}" class="badge bg-warning text-dark">Активен</span>
+                            <span th:if="${c.status == 'PAID'}" class="badge bg-success">Изплатен</span>
+                        </td>
+                        <td>
+                            <a th:href="@{/credits/{id}(id=${c.id})}" class="btn btn-outline-dark btn-action me-1">
+                                <i class="fa-solid fa-eye me-1"></i>План
+                            </a>
+                            <form sec:authorize="hasAuthority('admin')"
+                                  th:action="@{/credits/{id}/delete(id=${c.id})}" method="post" class="d-inline"
+                                  data-confirm="Изтриване на кредита?">
+                                <button type="submit" class="btn btn-danger btn-action">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(credits)}">
+                        <td colspan="9"><div class="empty-state"><i class="fa-solid fa-hand-holding-dollar"></i><br>Няма отпуснати кредити.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments :: confirmModal}"></div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Грешка')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container pb-4">
+    <div class="card form-card mx-auto text-center">
+        <div class="card-body p-5">
+            <div style="font-size:3rem;" class="text-danger mb-3">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h2 th:text="${statusCode}">500</h2>
+            <h4 class="text-muted mb-3" th:text="${errorTitle}">Възникна грешка</h4>
+            <p th:text="${message}">Съобщение за грешка</p>
+            <a th:href="@{/}" class="btn btn-dark mt-2">
+                <i class="fa-solid fa-house me-1"></i>Към началото
+            </a>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments :: head('Сметки')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-wallet"></i> Банкови сметки</h2>
+        <a th:href="@{/accounts/new}" class="btn btn-success btn-sm">
+            <i class="fa-solid fa-plus me-1"></i>Откриване на сметка
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th><th>IBAN</th><th>Притежател</th><th>Наличност</th><th>Статус</th><th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="a : ${accounts}">
+                        <td class="text-muted" th:text="${a.id}"></td>
+                        <td><code th:text="${a.iban}"></code></td>
+                        <td th:text="${a.ownerName}"></td>
+                        <td th:text="${#numbers.formatDecimal(a.balance,1,2)} + ' лв.'"></td>
+                        <td>
+                            <span th:if="${a.status == 'ACTIVE'}" class="badge bg-success">Активна</span>
+                            <span th:if="${a.status == 'CLOSED'}" class="badge bg-secondary">Закрита</span>
+                        </td>
+                        <td>
+                            <form th:if="${a.status == 'ACTIVE'}"
+                                  th:action="@{/accounts/{id}/close(id=${a.id})}" method="post" class="d-inline"
+                                  data-confirm="Закриване на сметката?">
+                                <button type="submit" class="btn btn-outline-dark btn-action me-1">
+                                    <i class="fa-solid fa-lock me-1"></i>Закрий
+                                </button>
+                            </form>
+                            <form sec:authorize="hasAuthority('admin')"
+                                  th:action="@{/accounts/{id}/delete(id=${a.id})}" method="post" class="d-inline"
+                                  data-confirm="Изтриване на сметката?">
+                                <button type="submit" class="btn btn-danger btn-action">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(accounts)}">
+                        <td colspan="6"><div class="empty-state"><i class="fa-solid fa-wallet"></i><br>Няма открити сметки.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments :: confirmModal}"></div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,532 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Bank System — модерен светъл финтех theme (изумрудено зелено)
+   Слой върху Bootstrap 5: design tokens + преработени компоненти + анимации
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* Акцент (изумрудено зелено) */
+    --brand-50:  #ecfdf5;
+    --brand-100: #d1fae5;
+    --brand-200: #a7f3d0;
+    --brand-400: #34d399;
+    --brand-500: #10b981;
+    --brand-600: #059669;
+    --brand-700: #047857;
+    --brand-800: #065f46;
+
+    /* Неутрални */
+    --ink:       #0f172a;
+    --muted:     #64748b;
+    --line:      #eef1f4;
+    --line-2:    #e2e8f0;
+    --surface:   #ffffff;
+    --bg:        #f4f7f6;
+
+    /* Сенки */
+    --shadow-sm: 0 1px 2px rgba(16, 24, 40, .04), 0 1px 3px rgba(16, 24, 40, .06);
+    --shadow-md: 0 6px 16px rgba(16, 24, 40, .08);
+    --shadow-lg: 0 18px 40px rgba(16, 24, 40, .14);
+
+    --radius:    16px;
+    --radius-sm: 10px;
+
+    /* Силни easing криви */
+    --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+    /* Bootstrap акцент → emerald */
+    --bs-primary: #059669;
+    --bs-primary-rgb: 5, 150, 105;
+    --bs-link-color: #047857;
+    --bs-link-color-rgb: 4, 120, 87;
+    --bs-link-hover-color: #065f46;
+}
+
+/* ── База и типографика ──────────────────────────────────────────────────── */
+body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5 {
+    letter-spacing: -0.01em;
+    font-weight: 700;
+}
+
+a {
+    text-decoration: none;
+}
+
+code {
+    color: var(--brand-700);
+    background: var(--brand-50);
+    padding: .1rem .4rem;
+    border-radius: 6px;
+    font-size: .85em;
+}
+
+/* Преходи между страниците (MPA cross-document view transitions) */
+@view-transition {
+    navigation: auto;
+}
+
+/* ── Navbar (светъл, blur) ───────────────────────────────────────────────── */
+.app-navbar {
+    background: rgba(255, 255, 255, .85);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+}
+.app-navbar .navbar-brand {
+    color: var(--brand-600);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+.app-navbar .nav-link {
+    color: var(--muted);
+    font-weight: 500;
+    border-radius: 8px;
+    padding: .4rem .7rem !important;
+    transition: color 160ms ease, background-color 160ms ease;
+}
+.app-navbar .nav-link:hover {
+    color: var(--brand-700);
+    background: var(--brand-50);
+}
+.app-navbar .nav-link.active {
+    color: var(--brand-700);
+    background: var(--brand-100);
+}
+.navbar-user {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+/* ── Карти ───────────────────────────────────────────────────────────────── */
+.card {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+.form-card {
+    max-width: 760px;
+}
+.card-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+/* Хедъри на картите → чисти, светли; зеленото е само в иконата */
+.card-header.bg-dark,
+.card-header.bg-success {
+    background: var(--surface) !important;
+    color: var(--ink) !important;
+    border-bottom: 1px solid var(--line);
+    font-weight: 600;
+}
+.card-header.bg-dark i,
+.card-header.bg-success i {
+    color: var(--brand-600);
+}
+.card-body {
+    padding: 1.25rem;
+}
+
+/* ── Бутони ──────────────────────────────────────────────────────────────── */
+.btn {
+    --bs-btn-font-weight: 600;
+    border-radius: var(--radius-sm);
+    padding: .5rem .9rem;
+    transition: transform 160ms var(--ease-out),
+                background-color 160ms ease,
+                border-color 160ms ease,
+                color 160ms ease,
+                box-shadow 160ms ease;
+}
+.btn:active {
+    transform: scale(0.97);
+}
+.btn-sm {
+    border-radius: 8px;
+}
+
+/* Основни (emerald) — primary, success и dark всички водят към акцента */
+.btn-primary,
+.btn-success,
+.btn-dark {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--brand-600);
+    --bs-btn-border-color: var(--brand-600);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--brand-700);
+    --bs-btn-hover-border-color: var(--brand-700);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--brand-800);
+    --bs-btn-active-border-color: var(--brand-800);
+    --bs-btn-disabled-bg: var(--brand-400);
+    --bs-btn-disabled-border-color: var(--brand-400);
+    box-shadow: 0 1px 2px rgba(5, 150, 105, .25);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--muted);
+    --bs-btn-border-color: var(--line-2);
+    --bs-btn-hover-color: var(--ink);
+    --bs-btn-hover-bg: #f1f5f9;
+    --bs-btn-hover-border-color: var(--line-2);
+}
+.btn-outline-dark {
+    --bs-btn-color: var(--ink);
+    --bs-btn-border-color: var(--line-2);
+    --bs-btn-hover-color: var(--ink);
+    --bs-btn-hover-bg: #f1f5f9;
+    --bs-btn-hover-border-color: var(--line-2);
+}
+
+/* Action бутони — меки, „tinted", модерни (показват цвета си на hover) */
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .65rem;
+    font-size: .82rem;
+    font-weight: 600;
+    border-radius: 10px;
+    border: 1px solid transparent !important;
+    box-shadow: none !important;
+    transition: transform 140ms var(--ease-out),
+                background-color 140ms ease,
+                color 140ms ease;
+}
+.btn-action:active { transform: scale(0.94); }
+
+/* Редактиране (амбър) */
+.btn-action.btn-warning {
+    background: #fef3c7 !important;
+    color: #92400e !important;
+}
+.btn-action.btn-warning:hover { background: #fde68a !important; color: #7c2d12 !important; }
+
+/* Изтриване (червено) */
+.btn-action.btn-danger {
+    background: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+.btn-action.btn-danger:hover { background: #fecaca !important; }
+
+/* Неутрални действия — преглед/план, закрий, деактивирай (сиво) */
+.btn-action.btn-outline-dark {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+}
+.btn-action.btn-outline-dark:hover { background: #e2e8f0 !important; color: #334155 !important; }
+
+/* Позитивни действия — активирай, плати (emerald, плътен) */
+.btn-action.btn-success {
+    background: var(--brand-600) !important;
+    color: #fff !important;
+}
+.btn-action.btn-success:hover { background: var(--brand-700) !important; }
+
+/* ── Бадж за роля в navbar ───────────────────────────────────────────────── */
+.role-badge {
+    display: inline-block;
+    margin-left: .45rem;
+    font-size: .68rem;
+    font-weight: 600;
+    padding: .18rem .55rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.role-badge--admin    { background: #ede9fe; color: #5b21b6; }
+.role-badge--employee { background: #dbeafe; color: #1d4ed8; }
+.role-badge--client   { background: var(--brand-100); color: var(--brand-800); }
+
+/* Видим фокус за клавиатура */
+:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .3);
+    border-radius: var(--radius-sm);
+}
+
+/* ── Форми ───────────────────────────────────────────────────────────────── */
+.form-label {
+    color: #334155;
+    margin-bottom: .35rem;
+}
+.form-control,
+.form-select {
+    border-radius: var(--radius-sm);
+    border-color: var(--line-2);
+    padding: .55rem .8rem;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--brand-500);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .18);
+}
+.input-group-text {
+    background: #f8fafc;
+    border-color: var(--line-2);
+    border-radius: var(--radius-sm);
+}
+
+/* ── Таблици ─────────────────────────────────────────────────────────────── */
+.table {
+    --bs-table-border-color: var(--line);
+    margin-bottom: 0;
+    font-variant-numeric: tabular-nums;
+}
+.table > :not(caption) > * > * {
+    padding: .85rem 1rem;
+}
+/* Светъл, изчистен хедър (override на table-dark) */
+.table-dark {
+    --bs-table-bg: #f8fafc;
+    --bs-table-color: var(--muted);
+    --bs-table-border-color: var(--line);
+}
+.table-dark th {
+    text-transform: uppercase;
+    font-size: .72rem;
+    letter-spacing: .04em;
+    font-weight: 600;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line-2);
+}
+.table-hover tbody tr {
+    transition: background-color 160ms ease;
+}
+.table-hover > tbody > tr:hover > * {
+    background-color: var(--brand-50);
+}
+tr.table-success {
+    --bs-table-bg: var(--brand-50);
+    transition: background-color 320ms var(--ease-out);
+}
+
+/* ── Баджове (меки, pill) ────────────────────────────────────────────────── */
+.badge {
+    font-weight: 600;
+    padding: .4em .7em;
+    border-radius: 999px;
+}
+.badge.bg-success { background: var(--brand-100) !important; color: var(--brand-800) !important; }
+.badge.bg-warning { background: #fef3c7 !important;        color: #92400e !important; }
+.badge.bg-danger  { background: #fee2e2 !important;        color: #991b1b !important; }
+.badge.bg-secondary { background: #e2e8f0 !important;      color: #475569 !important; }
+.badge.bg-info    { background: #cffafe !important;        color: #155e75 !important; }
+
+/* ── Заглавна лента на страница ──────────────────────────────────────────── */
+.page-title-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 1.5rem 0;
+}
+.page-title-bar h2 {
+    margin: 0;
+    font-size: 1.55rem;
+}
+.page-title-bar h2 i {
+    color: #94a3b8;
+    margin-right: .25rem;
+}
+
+/* ── Стат-карти (начален екран) ──────────────────────────────────────────── */
+.stat-card {
+    border-radius: var(--radius);
+    color: #fff;
+    padding: 1.4rem 1.5rem;
+    box-shadow: var(--shadow-md);
+    transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out);
+    animation: cardIn 320ms var(--ease-out) both;
+}
+.stat-card.bg-primary   { background: linear-gradient(135deg, var(--brand-600), var(--brand-400)) !important; }
+.stat-card.bg-success   { background: linear-gradient(135deg, #0ea5e9, #22d3ee) !important; }
+.stat-card.bg-dark      { background: linear-gradient(135deg, #0f172a, #334155) !important; }
+.stat-card.bg-secondary { background: linear-gradient(135deg, #475569, #94a3b8) !important; }
+
+@media (hover: hover) and (pointer: fine) {
+    a:hover > .stat-card {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-lg);
+    }
+}
+a:active > .stat-card {
+    transform: translateY(0) scale(0.99);
+}
+@keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: none; }
+}
+.col-md-4:nth-child(1) .stat-card { animation-delay: 0ms; }
+.col-md-4:nth-child(2) .stat-card { animation-delay: 60ms; }
+.col-md-4:nth-child(3) .stat-card { animation-delay: 120ms; }
+
+/* ── Metric карти (нов начален екран) ─────────────────────────────────────── */
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--shadow-sm);
+    color: var(--ink);
+    height: 100%;
+    transition: transform 200ms var(--ease-out),
+                box-shadow 200ms var(--ease-out),
+                border-color 200ms ease;
+    animation: cardIn 320ms var(--ease-out) both;
+}
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 1.25rem;
+}
+.metric-icon--emerald { background: var(--brand-100); color: var(--brand-700); }
+.metric-icon--blue    { background: #dbeafe; color: #1d4ed8; }
+.metric-icon--slate   { background: #e2e8f0; color: #334155; }
+.metric-icon--amber   { background: #fef3c7; color: #92400e; }
+.metric-body { flex: 1; min-width: 0; }
+.metric-title { font-weight: 600; font-size: 1.05rem; line-height: 1.2; }
+.metric-sub { color: var(--muted); font-size: .85rem; }
+.metric-arrow {
+    color: #cbd5e1;
+    opacity: .7;
+    transition: transform 200ms var(--ease-out), opacity 200ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--line-2);
+    }
+    .metric-card:hover .metric-arrow {
+        transform: translateX(3px);
+        opacity: 1;
+        color: var(--brand-600);
+    }
+}
+.metric-card:active {
+    transform: translateY(0) scale(.99);
+}
+
+/* ── Key/value плочки (детайл на кредит) ─────────────────────────────────── */
+.kv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: .75rem;
+}
+.kv-tile {
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: .8rem .9rem;
+}
+.kv-label {
+    color: var(--muted);
+    font-size: .72rem;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+.kv-value {
+    font-weight: 600;
+    font-size: 1.08rem;
+    margin-top: .2rem;
+    font-variant-numeric: tabular-nums;
+}
+.kv-value.accent { color: var(--brand-700); }
+.kv-value.danger { color: #b91c1c; }
+
+/* ── Празно състояние ────────────────────────────────────────────────────── */
+.empty-state {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #94a3b8;
+}
+.empty-state i {
+    font-size: 2.2rem;
+    margin-bottom: .5rem;
+    color: #cbd5e1;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+footer {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+/* ── Toast обратна връзка ────────────────────────────────────────────────── */
+.toast-stack {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1080;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+}
+.app-toast {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    min-width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--brand-600);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    padding: .85rem 1.1rem;
+    font-weight: 500;
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 380ms ease, transform 380ms var(--ease-out);
+}
+.app-toast[data-leaving] {
+    opacity: 0;
+    transform: translateY(-12px);
+}
+@starting-style {
+    .app-toast {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+}
+
+/* ── Достъпност: prefers-reduced-motion ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .btn,
+    .stat-card,
+    .table-hover tbody tr,
+    tr.table-success,
+    .app-toast,
+    .app-navbar .nav-link {
+        transition-duration: .01ms !important;
+        animation: none !important;
+    }
+    .btn:active,
+    a:active > .stat-card,
+    a:hover > .stat-card {
+        transform: none;
+    }
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation-duration: .01ms !important;
+    }
+}

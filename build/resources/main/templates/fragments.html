@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- ── HEAD ──────────────────────────────────────────────────────────── -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | Банкова система'">Банкова система</title>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          crossorigin="anonymous"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────────────── -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light app-navbar mb-4 sticky-top">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fa-solid fa-building-columns me-1"></i> Банкова система
+        </a>
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navMenu"
+                aria-controls="navMenu" aria-expanded="false" aria-label="Меню">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav me-auto gap-1">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('admin','employee')">
+                    <a class="nav-link nav-auto-active" th:href="@{/clients}">
+                        <i class="fa-solid fa-users"></i> Клиенти
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyAuthority('admin','employee')">
+                    <a class="nav-link nav-auto-active" th:href="@{/accounts}">
+                        <i class="fa-solid fa-wallet"></i> Сметки
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAnyAuthority('admin','employee')">
+                    <a class="nav-link nav-auto-active" th:href="@{/credits}">
+                        <i class="fa-solid fa-hand-holding-dollar"></i> Кредити
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('admin')">
+                    <a class="nav-link nav-auto-active" th:href="@{/credit-types}">
+                        <i class="fa-solid fa-sliders"></i> Кредитни видове
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('admin')">
+                    <a class="nav-link nav-auto-active" th:href="@{/employees}">
+                        <i class="fa-solid fa-user-tie"></i> Служители
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('client')">
+                    <a class="nav-link nav-auto-active" th:href="@{/my}">
+                        <i class="fa-solid fa-user"></i> Моят профил
+                    </a>
+                </li>
+            </ul>
+
+            <ul class="navbar-nav align-items-center gap-2">
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <span class="navbar-user">
+                        <i class="fa-solid fa-circle-user me-1"></i>
+                        <sec:authentication property="name"/>
+                        <span sec:authorize="hasAuthority('admin')" class="role-badge role-badge--admin">Администратор</span>
+                        <span sec:authorize="hasAuthority('employee')" class="role-badge role-badge--employee">Служител</span>
+                        <span sec:authorize="hasAuthority('client')" class="role-badge role-badge--client">Клиент</span>
+                    </span>
+                </li>
+                <li class="nav-item" sec:authorize="isAuthenticated()">
+                    <form th:action="@{/logout}" method="post" class="m-0">
+                        <button class="btn btn-outline-secondary btn-sm">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i>Изход
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ── TOASTS (обратна връзка след действие) ──────────────────────────── -->
+<div th:fragment="toasts" class="toast-stack" aria-live="polite" aria-atomic="true">
+    <div th:if="${param.created}" class="app-toast">
+        <i class="fa-solid fa-circle-check text-success"></i><span>Записът е добавен успешно.</span>
+    </div>
+    <div th:if="${param.updated}" class="app-toast">
+        <i class="fa-solid fa-circle-check text-success"></i><span>Промените са запазени.</span>
+    </div>
+    <div th:if="${param.deleted}" class="app-toast" style="border-left-color:#6c757d">
+        <i class="fa-solid fa-trash text-secondary"></i><span>Записът е изтрит.</span>
+    </div>
+    <div th:if="${param.opened}" class="app-toast">
+        <i class="fa-solid fa-wallet text-success"></i><span>Сметката е открита.</span>
+    </div>
+    <div th:if="${param.closed}" class="app-toast" style="border-left-color:#6c757d">
+        <i class="fa-solid fa-lock text-secondary"></i><span>Сметката е закрита.</span>
+    </div>
+    <div th:if="${param.granted}" class="app-toast">
+        <i class="fa-solid fa-hand-holding-dollar text-success"></i><span>Кредитът е отпуснат.</span>
+    </div>
+    <div th:if="${param.paid}" class="app-toast">
+        <i class="fa-solid fa-money-bill-wave text-success"></i><span>Вноската е отбелязана като платена.</span>
+    </div>
+</div>
+
+<!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+<footer th:fragment="footer" class="bg-white text-center py-3 mt-5 text-muted">
+    <i class="fa-solid fa-building-columns text-dark me-1"></i>
+    CSCB634 Банкова система &copy; 2026
+</footer>
+
+<!-- ── CONFIRM MODAL (заменя браузърния confirm()) ─────────────────────── -->
+<div th:fragment="confirmModal" class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fa-solid fa-triangle-exclamation text-warning me-2"></i>Потвърждение</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Затвори"></button>
+            </div>
+            <div class="modal-body">
+                <p class="confirm-message mb-0">Сигурни ли сте?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отказ</button>
+                <button type="button" class="btn btn-danger confirm-ok"><i class="fa-solid fa-check me-1"></i>Потвърди</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── SCRIPTS ────────────────────────────────────────────────────────── -->
+<th:block th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+    <script>
+        // Активен nav линк според текущия URL
+        (function () {
+            const path = window.location.pathname;
+            document.querySelectorAll('.nav-auto-active').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (href && href !== '/' && path.startsWith(href)) {
+                    link.classList.add('active');
+                } else if (href === '/' && path === '/') {
+                    link.classList.add('active');
+                }
+            });
+        })();
+
+        // Toast обратна връзка — автоматично изчезване
+        (function () {
+            document.querySelectorAll('.app-toast').forEach(function (t) {
+                setTimeout(function () { t.setAttribute('data-leaving', ''); }, 2600);
+                t.addEventListener('transitionend', function () {
+                    if (t.hasAttribute('data-leaving')) t.remove();
+                });
+            });
+        })();
+
+        // Потвърждение чрез модал за форми с data-confirm
+        (function () {
+            const modalEl = document.getElementById('confirmModal');
+            if (!modalEl || typeof bootstrap === 'undefined') return;
+            const bsModal = new bootstrap.Modal(modalEl);
+            const msgEl = modalEl.querySelector('.confirm-message');
+            let pending = null;
+            document.querySelectorAll('form[data-confirm]').forEach(function (f) {
+                f.addEventListener('submit', function (e) {
+                    if (f.dataset.confirmed === '1') return;
+                    e.preventDefault();
+                    pending = f;
+                    msgEl.textContent = f.getAttribute('data-confirm');
+                    bsModal.show();
+                });
+            });
+            modalEl.querySelector('.confirm-ok').addEventListener('click', function () {
+                if (pending) {
+                    pending.dataset.confirmed = '1';
+                    bsModal.hide();
+                    pending.submit();
+                }
+            });
+        })();
+    </script>
+</th:block>
+
+</html>

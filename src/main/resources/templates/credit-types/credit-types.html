@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Кредитни видове')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-sliders"></i> Кредитни видове</h2>
+        <a th:href="@{/credit-types/new}" class="btn btn-success btn-sm">
+            <i class="fa-solid fa-plus me-1"></i>Нов вид кредит
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th><th>Име</th><th>Годишна лихва</th><th>Макс. сума</th><th>Макс. срок</th><th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${creditTypes}">
+                        <td class="text-muted" th:text="${t.id}"></td>
+                        <td th:text="${t.name}"></td>
+                        <td th:text="${#numbers.formatDecimal(t.annualInterestRate,1,2)} + ' %'"></td>
+                        <td th:text="${#numbers.formatDecimal(t.maxAmount,1,2)} + ' лв.'"></td>
+                        <td th:text="${t.maxTermMonths} + ' мес.'"></td>
+                        <td>
+                            <a th:href="@{/credit-types/{id}/edit(id=${t.id})}" class="btn btn-warning btn-action me-1">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <form th:action="@{/credit-types/{id}/delete(id=${t.id})}" method="post" class="d-inline"
+                                  data-confirm="Изтриване на кредитния вид?">
+                                <button type="submit" class="btn btn-danger btn-action">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(creditTypes)}">
+                        <td colspan="6"><div class="empty-state"><i class="fa-solid fa-sliders"></i><br>Няма дефинирани кредитни видове.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments :: confirmModal}"></div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>
