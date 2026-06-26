@@ -11,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Controller
 @RequestMapping("/clients")
 @RequiredArgsConstructor
@@ -19,9 +22,23 @@ public class ClientViewController {
     private final ClientService clientService;
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("clients", clientService.getAllClients());
+    public String list(@RequestParam(required = false) String q, Model model) {
+        List<ClientDTO> clients = clientService.getAllClients();
+        if (q != null && !q.isBlank()) {
+            String s = q.trim().toLowerCase();
+            clients = clients.stream()
+                    .filter(c -> contains(c.getDisplayName(), s)
+                            || contains(c.getIdentifier(), s)
+                            || contains(c.getUsername(), s))
+                    .collect(Collectors.toList());
+        }
+        model.addAttribute("clients", clients);
+        model.addAttribute("q", q);
         return "clients/clients";
+    }
+
+    private boolean contains(String value, String search) {
+        return value != null && value.toLowerCase().contains(search);
     }
 
     // ── Физическо лице ────────────────────────────────────────────────────────

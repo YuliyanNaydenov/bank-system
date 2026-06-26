@@ -10,6 +10,21 @@
     <div class="page-title-bar mb-3">
         <h2><i class="fa-solid fa-file-invoice-dollar"></i> Кредит #<span th:text="${credit.id}"></span></h2>
         <div class="d-flex gap-2">
+            <th:block sec:authorize="hasAnyAuthority('admin','employee')" th:if="${credit.status == 'ACTIVE'}">
+                <form th:action="@{/credits/{id}/payoff(id=${credit.id})}" method="post" class="d-inline"
+                      data-confirm="Предсрочно погасяване на целия кредит?">
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fa-solid fa-circle-check me-1"></i>Предсрочно погасяване
+                    </button>
+                </form>
+                <form th:if="${credit.paidInstallments == 0}"
+                      th:action="@{/credits/{id}/cancel(id=${credit.id})}" method="post" class="d-inline"
+                      data-confirm="Отказ на кредита?">
+                    <button type="submit" class="btn btn-outline-dark btn-sm">
+                        <i class="fa-solid fa-ban me-1"></i>Откажи
+                    </button>
+                </form>
+            </th:block>
             <a sec:authorize="hasAnyAuthority('admin','employee')" th:href="@{/credits}" class="btn btn-outline-secondary btn-sm">
                 <i class="fa-solid fa-arrow-left me-1"></i>Към кредитите
             </a>
@@ -17,6 +32,11 @@
                 <i class="fa-solid fa-arrow-left me-1"></i>Към профила
             </a>
         </div>
+    </div>
+
+    <div th:if="${credit.hasOverdue}" class="alert alert-danger d-flex align-items-center gap-2">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        Кредитът има просрочени вноски!
     </div>
 
     <!-- ── Обобщение ──────────────────────────────────────────────────────── -->
@@ -40,11 +60,12 @@
                     <div class="kv-value">
                         <span th:if="${credit.status == 'ACTIVE'}" class="badge bg-warning text-dark">Активен</span>
                         <span th:if="${credit.status == 'PAID'}" class="badge bg-success">Изплатен</span>
+                        <span th:if="${credit.status == 'CANCELLED'}" class="badge bg-secondary">Отказан</span>
                     </div>
                 </div>
                 <div class="kv-tile">
                     <div class="kv-label">Отпусната сума</div>
-                    <div class="kv-value" th:text="${#numbers.formatDecimal(credit.amount,1,2)} + ' лв.'"></div>
+                    <div class="kv-value" th:text="${#numbers.formatDecimal(credit.amount,1,2)} + ' €'"></div>
                 </div>
                 <div class="kv-tile">
                     <div class="kv-label">Срок</div>
@@ -52,15 +73,15 @@
                 </div>
                 <div class="kv-tile">
                     <div class="kv-label">Месечна вноска</div>
-                    <div class="kv-value accent" th:text="${#numbers.formatDecimal(credit.monthlyPayment,1,2)} + ' лв.'"></div>
+                    <div class="kv-value accent" th:text="${#numbers.formatDecimal(credit.monthlyPayment,1,2)} + ' €'"></div>
                 </div>
                 <div class="kv-tile">
                     <div class="kv-label">Общо за връщане</div>
-                    <div class="kv-value" th:text="${#numbers.formatDecimal(credit.totalToRepay,1,2)} + ' лв.'"></div>
+                    <div class="kv-value" th:text="${#numbers.formatDecimal(credit.totalToRepay,1,2)} + ' €'"></div>
                 </div>
                 <div class="kv-tile">
                     <div class="kv-label">Остатък за плащане</div>
-                    <div class="kv-value danger" th:text="${#numbers.formatDecimal(credit.remainingBalance,1,2)} + ' лв.'"></div>
+                    <div class="kv-value danger" th:text="${#numbers.formatDecimal(credit.remainingBalance,1,2)} + ' €'"></div>
                 </div>
             </div>
         </div>
@@ -75,26 +96,43 @@
             <table class="table table-striped table-hover mb-0 align-middle">
                 <thead class="table-dark">
                     <tr>
-                        <th>Месец</th><th>Вноска</th><th>Главница</th><th>Лихва</th>
+                        <th>Месец</th><th>Падеж</th><th>Вноска</th><th>Главница</th><th>Лихва</th>
                         <th>Остатък</th><th>Статус</th>
-                        <th sec:authorize="hasAnyAuthority('admin','employee')">Действие</th>
+                        <th sec:authorize="hasAnyAuthority('admin','employee','client')">Действие</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="i : ${credit.installments}" th:classappend="${i.paid} ? 'table-success' : ''">
+                    <tr th:each="i : ${credit.installments}"
+                        th:classappend="${i.paid} ? 'table-success' : (${i.overdue} ? 'table-danger' : '')">
                         <td th:text="${i.monthNumber}"></td>
+                        <td th:text="${i.dueDate != null ? #temporals.format(i.dueDate, 'dd.MM.yyyy') : '—'}"></td>
                         <td th:text="${#numbers.formatDecimal(i.paymentAmount,1,2)}"></td>
                         <td th:text="${#numbers.formatDecimal(i.principalPart,1,2)}"></td>
                         <td th:text="${#numbers.formatDecimal(i.interestPart,1,2)}"></td>
                         <td th:text="${#numbers.formatDecimal(i.remainingBalance,1,2)}"></td>
                         <td>
                             <span th:if="${i.paid}" class="badge bg-success"><i class="fa-solid fa-check me-1"></i>Платена</span>
-                            <span th:unless="${i.paid}" class="badge bg-secondary">Чака</span>
+                            <span th:if="${!i.paid and i.overdue}" class="badge bg-danger">Просрочена</span>
+                            <span th:if="${!i.paid and !i.overdue}" class="badge bg-secondary">Чака</span>
                         </td>
-                        <td sec:authorize="hasAnyAuthority('admin','employee')">
-                            <form th:unless="${i.paid}"
+                        <td sec:authorize="hasAnyAuthority('admin','employee','client')">
+                            <!-- Служител: маркира платено (касово) -->
+                            <form sec:authorize="hasAnyAuthority('admin','employee')" th:unless="${i.paid}"
                                   th:action="@{/credits/{cid}/installments/{iid}/pay(cid=${credit.id},iid=${i.id})}"
                                   method="post" class="d-inline">
+                                <button type="submit" class="btn btn-success btn-action">
+                                    <i class="fa-solid fa-money-bill-wave me-1"></i>Плати
+                                </button>
+                            </form>
+                            <!-- Клиент: плаща от своя сметка -->
+                            <form sec:authorize="hasAuthority('client')" th:unless="${i.paid}"
+                                  th:action="@{/my/credits/{cid}/installments/{iid}/pay(cid=${credit.id},iid=${i.id})}"
+                                  method="post" class="d-flex gap-1">
+                                <select name="accountId" class="form-select form-select-sm" required style="max-width:210px">
+                                    <option value="">Изберете сметка…</option>
+                                    <option th:each="a : ${payAccounts}" th:value="${a.id}"
+                                            th:text="${a.iban + ' (' + #numbers.formatDecimal(a.balance,1,2) + ' €)'}"></option>
+                                </select>
                                 <button type="submit" class="btn btn-success btn-action">
                                     <i class="fa-solid fa-money-bill-wave me-1"></i>Плати
                                 </button>
@@ -106,6 +144,7 @@
         </div>
     </div>
 </div>
+<div th:replace="~{fragments :: confirmModal}"></div>
 <footer th:replace="~{fragments :: footer}"></footer>
 <th:block th:replace="~{fragments :: scripts}"></th:block>
 </body>

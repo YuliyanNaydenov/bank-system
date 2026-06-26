@@ -9,6 +9,7 @@ import java_project_yn.bank_system.dto.AccountDTO;
 import java_project_yn.bank_system.dto.CreateAccountDTO;
 import java_project_yn.bank_system.exception.BusinessRuleException;
 import java_project_yn.bank_system.exception.ClientNotFoundException;
+import java_project_yn.bank_system.service.AuditService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -31,6 +32,9 @@ class AccountServiceImplTest {
     private AccountRepository accountRepository;
     @Mock
     private ClientRepository clientRepository;
+
+    @Mock
+    private AuditService auditService;
 
     @InjectMocks
     private AccountServiceImpl accountService;
@@ -78,6 +82,20 @@ class AccountServiceImplTest {
         given(accountRepository.findById(1L)).willReturn(Optional.of(account));
 
         assertThrows(BusinessRuleException.class, () -> accountService.closeAccount(1L));
+    }
+
+    @Test
+    void deleteAccount_notFound_throws() {
+        given(accountRepository.existsById(99L)).willReturn(false);
+        assertThrows(java_project_yn.bank_system.exception.AccountNotFoundException.class,
+                () -> accountService.deleteAccount(99L));
+    }
+
+    @Test
+    void deleteAccount_found_deletes() {
+        given(accountRepository.existsById(1L)).willReturn(true);
+        accountService.deleteAccount(1L);
+        verify(accountRepository).deleteById(1L);
     }
 
     @Test

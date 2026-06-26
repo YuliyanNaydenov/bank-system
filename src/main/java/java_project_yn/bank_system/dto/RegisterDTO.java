@@ -1,6 +1,7 @@
 package java_project_yn.bank_system.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -32,6 +33,6 @@ public class RegisterDTO {
     private String lastName;
 
     @NotBlank(message = "ЕГН е задължително")
-    @Size(min = 10, max = 10, message = "ЕГН трябва да е точно 10 цифри")
+    @Pattern(regexp = "\\d{10}", message = "ЕГН трябва да съдържа точно 10 цифри")
     private String egn;
 }

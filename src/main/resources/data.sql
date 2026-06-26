@@ -64,3 +64,14 @@ INSERT INTO account (iban, balance, status, owner_id)
 SELECT * FROM (SELECT 'BG18BANK00098765432109', 0.00, 'ACTIVE',
     (SELECT id FROM client WHERE eik = '203456789')) AS tmp
 WHERE NOT EXISTS (SELECT 1 FROM account WHERE iban = 'BG18BANK00098765432109');
+
+-- ── Примерна транзакция (начален депозит) ────────────────────────────────────
+INSERT INTO transaction (type, amount, tx_timestamp, balance_after, account_id, counterparty_iban, description)
+SELECT * FROM (SELECT 'DEPOSIT' AS type, 1250.00 AS amount, NOW() AS tx_timestamp, 1250.00 AS balance_after,
+    (SELECT id FROM account WHERE iban = 'BG18BANK00012345678901') AS account_id,
+    NULL AS counterparty_iban, 'Начален депозит' AS description) AS tmp
+WHERE NOT EXISTS (
+    SELECT 1 FROM transaction t
+    JOIN account a ON t.account_id = a.id
+    WHERE a.iban = 'BG18BANK00012345678901'
+);

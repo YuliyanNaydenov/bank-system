@@ -44,6 +44,26 @@ public class CreditApiController {
         return creditService.payInstallment(creditId, installmentId);
     }
 
+    /** Плащане на вноска чрез теглене от сметка. */
+    @PostMapping("/{creditId}/installments/{installmentId}/pay-from-account/{accountId}")
+    public CreditDTO payInstallmentFromAccount(@PathVariable long creditId,
+                                               @PathVariable long installmentId,
+                                               @PathVariable long accountId) {
+        return creditService.payInstallmentFromAccount(creditId, installmentId, accountId);
+    }
+
+    /** Предсрочно погасяване. */
+    @PostMapping("/{id}/payoff")
+    public CreditDTO payoff(@PathVariable long id) {
+        return creditService.earlyPayoff(id);
+    }
+
+    /** Отказ на кредит. */
+    @PostMapping("/{id}/cancel")
+    public CreditDTO cancel(@PathVariable long id) {
+        return creditService.cancelCredit(id);
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable long id) {

@@ -8,6 +8,7 @@ import java_project_yn.bank_system.dto.CreateEmployeeDTO;
 import java_project_yn.bank_system.dto.UserSummaryDTO;
 import java_project_yn.bank_system.exception.BusinessRuleException;
 import java_project_yn.bank_system.exception.DuplicateEntityException;
+import java_project_yn.bank_system.service.AuditService;
 import java_project_yn.bank_system.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -67,6 +69,7 @@ public class UserServiceImpl implements UserService {
                 .build();
         user.addRole(employeeRole);
         userRepository.save(user);
+        auditService.log("Нов служител", dto.getUsername());
     }
 
     @Override
@@ -81,6 +84,7 @@ public class UserServiceImpl implements UserService {
             throw new BusinessRuleException("Администраторски акаунт не може да бъде изтрит оттук!");
         }
         userRepository.deleteById(id);
+        auditService.log("Изтрит служител", user.getUsername());
     }
 
     @Override
@@ -96,6 +100,37 @@ public class UserServiceImpl implements UserService {
         }
         user.setEnabled(enabled);
         userRepository.save(user);
+        auditService.log(enabled ? "Активиран служител" : "Деактивиран служител", user.getUsername());
+    }
+
+    @Override
+    @PreAuthorize("hasAnyAuthority('admin', 'employee')")
+    public void createClientLogin(String username, String rawPassword) {
+        if (userRepository.existsByUsername(username)) {
+            throw new DuplicateEntityException("Потребителско име '" + username + "' вече съществува!");
+        }
+        Role clientRole = roleRepository.findByAuthority("client")
+                .orElseGet(() -> roleRepository.save(Role.builder().authority("client").build()));
+        User user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(rawPassword))
+                .build();
+        user.addRole(clientRole);
+        userRepository.save(user);
+        auditService.log("Нов клиентски вход", username);
+    }
+
+    @Override
+    @PreAuthorize("isAuthenticated()")
+    public void changePassword(String username, String currentPassword, String newPassword) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BusinessRuleException("Потребителят не е намерен!"));
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new BusinessRuleException("Текущата парола е грешна!");
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        auditService.log(username, "Смяна на парола", "Потребителят смени паролата си");
     }
 
     private UserSummaryDTO toDto(User user) {

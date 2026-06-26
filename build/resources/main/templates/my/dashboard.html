@@ -18,19 +18,25 @@
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead class="table-dark">
-                    <tr><th>IBAN</th><th>Наличност</th><th>Статус</th></tr>
+                    <tr><th>IBAN</th><th>Наличност</th><th>Статус</th><th></th></tr>
                 </thead>
                 <tbody>
                     <tr th:each="a : ${accounts}">
                         <td><code th:text="${a.iban}"></code></td>
-                        <td th:text="${#numbers.formatDecimal(a.balance,1,2)} + ' лв.'"></td>
+                        <td th:text="${#numbers.formatDecimal(a.balance,1,2)} + ' €'"></td>
                         <td>
                             <span th:if="${a.status == 'ACTIVE'}" class="badge bg-success">Активна</span>
                             <span th:if="${a.status == 'CLOSED'}" class="badge bg-secondary">Закрита</span>
                         </td>
+                        <td>
+                            <a th:href="@{/my/accounts/{id}/transactions(id=${a.id})}"
+                               class="btn btn-outline-dark btn-action">
+                                <i class="fa-solid fa-right-left me-1"></i>Транзакции
+                            </a>
+                        </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(accounts)}">
-                        <td colspan="3"><div class="empty-state"><i class="fa-solid fa-wallet"></i><br>Нямате сметки.</div></td>
+                        <td colspan="4"><div class="empty-state"><i class="fa-solid fa-wallet"></i><br>Нямате сметки.</div></td>
                     </tr>
                 </tbody>
             </table>
@@ -49,13 +55,15 @@
                     <tr th:each="c : ${credits}">
                         <td class="text-muted" th:text="${c.id}"></td>
                         <td th:text="${c.creditTypeName}"></td>
-                        <td th:text="${#numbers.formatDecimal(c.amount,1,2)} + ' лв.'"></td>
+                        <td th:text="${#numbers.formatDecimal(c.amount,1,2)} + ' €'"></td>
                         <td th:text="${c.termMonths} + ' мес.'"></td>
-                        <td th:text="${#numbers.formatDecimal(c.monthlyPayment,1,2)} + ' лв.'"></td>
+                        <td th:text="${#numbers.formatDecimal(c.monthlyPayment,1,2)} + ' €'"></td>
                         <td th:text="${c.paidInstallments} + '/' + ${c.termMonths}"></td>
                         <td>
-                            <span th:if="${c.status == 'ACTIVE'}" class="badge bg-warning text-dark">Активен</span>
+                            <span th:if="${c.status == 'ACTIVE' and !c.hasOverdue}" class="badge bg-warning text-dark">Активен</span>
+                            <span th:if="${c.status == 'ACTIVE' and c.hasOverdue}" class="badge bg-danger">Просрочен</span>
                             <span th:if="${c.status == 'PAID'}" class="badge bg-success">Изплатен</span>
+                            <span th:if="${c.status == 'CANCELLED'}" class="badge bg-secondary">Отказан</span>
                         </td>
                         <td>
                             <a th:href="@{/my/credits/{id}(id=${c.id})}" class="btn btn-outline-dark btn-action">

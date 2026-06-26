@@ -11,6 +11,7 @@ import java_project_yn.bank_system.exception.AccountNotFoundException;
 import java_project_yn.bank_system.exception.BusinessRuleException;
 import java_project_yn.bank_system.exception.ClientNotFoundException;
 import java_project_yn.bank_system.service.AccountService;
+import java_project_yn.bank_system.service.AuditService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
     private final ClientRepository clientRepository;
+    private final AuditService auditService;
 
     @Override
     @PreAuthorize("hasAnyAuthority('admin', 'employee')")
@@ -71,7 +73,9 @@ public class AccountServiceImpl implements AccountService {
                 .status(AccountStatus.ACTIVE)
                 .owner(owner)
                 .build();
-        return toDto(accountRepository.save(account));
+        AccountDTO saved = toDto(accountRepository.save(account));
+        auditService.log("Открита сметка", "IBAN " + saved.getIban() + " на " + saved.getOwnerName());
+        return saved;
     }
 
     @Override
@@ -85,7 +89,9 @@ public class AccountServiceImpl implements AccountService {
             throw new BusinessRuleException("Сметка с ненулева наличност не може да бъде закрита!");
         }
         account.setStatus(AccountStatus.CLOSED);
-        return toDto(accountRepository.save(account));
+        AccountDTO saved = toDto(accountRepository.save(account));
+        auditService.log("Закрита сметка", "IBAN " + saved.getIban());
+        return saved;
     }
 
     @Override
@@ -95,6 +101,7 @@ public class AccountServiceImpl implements AccountService {
             throw new AccountNotFoundException("Сметка с id=" + id + " не е намерена!");
         }
         accountRepository.deleteById(id);
+        auditService.log("Изтрита сметка", "Сметка id=" + id);
     }
 
     // ── Помощни методи ──────────────────────────────────────────────────────

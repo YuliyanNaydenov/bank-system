@@ -35,12 +35,13 @@
                                 th:classappend="${#fields.hasErrors('creditTypeId')} ? 'is-invalid'">
                             <option value="">— Изберете вид —</option>
                             <option th:each="t : ${allCreditTypes}" th:value="${t.id}"
-                                    th:text="${t.name + ' — ' + #numbers.formatDecimal(t.annualInterestRate,1,2) + '%, до ' + #numbers.formatDecimal(t.maxAmount,1,0) + ' лв., до ' + t.maxTermMonths + ' мес.'}"></option>
+                                    th:attr="data-rate=${t.annualInterestRate},data-max=${t.maxAmount},data-term=${t.maxTermMonths}"
+                                    th:text="${t.name + ' — ' + #numbers.formatDecimal(t.annualInterestRate,1,2) + '%, до ' + #numbers.formatDecimal(t.maxAmount,1,0) + ' €, до ' + t.maxTermMonths + ' мес.'}"></option>
                         </select>
                         <div class="invalid-feedback" th:errors="*{creditTypeId}"></div>
                     </div>
                     <div class="col-sm-6">
-                        <label class="form-label fw-semibold">Сума (лв.)</label>
+                        <label class="form-label fw-semibold">Сума (€)</label>
                         <input type="number" step="0.01" min="0.01" class="form-control" th:field="*{amount}"
                                th:classappend="${#fields.hasErrors('amount')} ? 'is-invalid'"/>
                         <div class="invalid-feedback" th:errors="*{amount}"></div>
@@ -57,6 +58,28 @@
                     При отпускане се генерира анюитетен погасителен план. Сумата и срокът не могат да надвишават
                     лимитите на избрания вид кредит.
                 </div>
+
+                <!-- Жив калкулатор (само ориентир, изчислява се в браузъра) -->
+                <div id="calcOut" class="mt-3" style="display:none">
+                    <div class="kv-grid">
+                        <div class="kv-tile">
+                            <div class="kv-label">Месечна вноска</div>
+                            <div class="kv-value accent" id="calcMonthly">—</div>
+                        </div>
+                        <div class="kv-tile">
+                            <div class="kv-label">Общо за връщане</div>
+                            <div class="kv-value" id="calcTotal">—</div>
+                        </div>
+                        <div class="kv-tile">
+                            <div class="kv-label">Обща лихва</div>
+                            <div class="kv-value" id="calcInterest">—</div>
+                        </div>
+                    </div>
+                    <div id="calcWarn" class="text-danger small mt-2" style="display:none">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i>Сумата или срокът надвишават лимита на избрания вид.
+                    </div>
+                </div>
+
                 <div class="d-flex gap-2 mt-4">
                     <button type="submit" class="btn btn-dark"><i class="fa-solid fa-check me-1"></i>Отпусни кредит</button>
                     <a th:href="@{/credits}" class="btn btn-outline-secondary">Отказ</a>
@@ -67,5 +90,48 @@
 </div>
 <footer th:replace="~{fragments :: footer}"></footer>
 <th:block th:replace="~{fragments :: scripts}"></th:block>
+<script>
+    (function () {
+        const typeSel = document.getElementById('creditTypeId');
+        const amountEl = document.getElementById('amount');
+        const termEl = document.getElementById('termMonths');
+        const out = document.getElementById('calcOut');
+        const moEl = document.getElementById('calcMonthly');
+        const totEl = document.getElementById('calcTotal');
+        const intEl = document.getElementById('calcInterest');
+        const warnEl = document.getElementById('calcWarn');
+        if (!typeSel) return;
+
+        function fmt(n) {
+            return n.toLocaleString('bg-BG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+        }
+        function calc() {
+            const opt = typeSel.options[typeSel.selectedIndex];
+            const rate = opt ? parseFloat(opt.getAttribute('data-rate')) : NaN;
+            const maxAmount = opt ? parseFloat(opt.getAttribute('data-max')) : NaN;
+            const maxTerm = opt ? parseInt(opt.getAttribute('data-term'), 10) : NaN;
+            const P = parseFloat(amountEl.value);
+            const n = parseInt(termEl.value, 10);
+            if (!opt || !opt.value || isNaN(rate) || isNaN(P) || P <= 0 || isNaN(n) || n <= 0) {
+                out.style.display = 'none';
+                return;
+            }
+            const r = rate / 100 / 12;
+            let monthly;
+            if (r === 0) { monthly = P / n; }
+            else { const pw = Math.pow(1 + r, n); monthly = P * r * pw / (pw - 1); }
+            const total = monthly * n;
+            moEl.textContent = fmt(monthly);
+            totEl.textContent = fmt(total);
+            intEl.textContent = fmt(total - P);
+            const over = (!isNaN(maxAmount) && P > maxAmount) || (!isNaN(maxTerm) && n > maxTerm);
+            warnEl.style.display = over ? '' : 'none';
+            out.style.display = '';
+        }
+        typeSel.addEventListener('change', calc);
+        amountEl.addEventListener('input', calc);
+        termEl.addEventListener('input', calc);
+    })();
+</script>
 </body>
 </html>

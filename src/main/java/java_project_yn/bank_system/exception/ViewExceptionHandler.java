@@ -1,9 +1,12 @@
 package java_project_yn.bank_system.exception;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * Обработва изключенията на view контролерите — връща HTML страница с грешка.
@@ -54,6 +57,26 @@ public class ViewExceptionHandler {
         model.addAttribute("statusCode", 400);
         model.addAttribute("errorTitle", "Невалидни данни");
         model.addAttribute("message", ex.getMessage());
+        return "errors/errors";
+    }
+
+    @ExceptionHandler({
+            MethodArgumentTypeMismatchException.class,
+            MissingServletRequestParameterException.class
+    })
+    public String handleBadParams(Exception ex, Model model) {
+        model.addAttribute("statusCode", 400);
+        model.addAttribute("errorTitle", "Невалидни данни");
+        model.addAttribute("message", "Некоректни или липсващи входни данни.");
+        return "errors/errors";
+    }
+
+    @ExceptionHandler(DataAccessException.class)
+    public String handleDataAccess(DataAccessException ex, Model model) {
+        model.addAttribute("statusCode", 500);
+        model.addAttribute("errorTitle", "Грешка с базата данни");
+        model.addAttribute("message",
+                "Операцията не можа да бъде записана. Моля, опитайте отново или се свържете с администратор.");
         return "errors/errors";
     }
 

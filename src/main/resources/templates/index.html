@@ -55,6 +55,17 @@
             </a>
         </div>
 
+        <div class="col-md-6 col-lg-4" sec:authorize="hasAnyAuthority('admin','employee')">
+            <a th:href="@{/statistics}" class="metric-card">
+                <div class="metric-icon metric-icon--blue"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="metric-body">
+                    <div class="metric-title">Справки</div>
+                    <div class="metric-sub">Обобщение и графики</div>
+                </div>
+                <i class="fa-solid fa-arrow-right metric-arrow"></i>
+            </a>
+        </div>
+
         <div class="col-md-6 col-lg-4" sec:authorize="hasAuthority('admin')">
             <a th:href="@{/credit-types}" class="metric-card">
                 <div class="metric-icon metric-icon--amber"><i class="fa-solid fa-sliders"></i></div>

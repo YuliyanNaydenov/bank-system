@@ -43,10 +43,15 @@
                                th:classappend="${#fields.hasErrors('representativeName')} ? 'is-invalid'"/>
                         <div class="invalid-feedback" th:errors="*{representativeName}"></div>
                     </div>
-                    <div class="col-12">
+                    <div class="col-sm-6">
                         <label class="form-label fw-semibold">Потребителско име <span class="text-muted">(незадължително)</span></label>
                         <input type="text" class="form-control" th:field="*{username}"/>
-                        <div class="form-text">За свързване с акаунт за вход на клиента.</div>
+                        <div class="form-text">За вход на клиента в системата.</div>
+                    </div>
+                    <div class="col-sm-6" th:unless="${isEdit}">
+                        <label class="form-label fw-semibold">Парола <span class="text-muted">(незадължително)</span></label>
+                        <input type="password" class="form-control" th:field="*{password}"/>
+                        <div class="form-text">Попълнете заедно с потребителско име, за да създадете вход.</div>
                     </div>
                 </div>
                 <div class="d-flex gap-2 mt-4">

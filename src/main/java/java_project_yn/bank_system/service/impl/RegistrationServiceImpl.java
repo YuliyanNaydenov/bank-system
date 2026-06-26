@@ -9,6 +9,7 @@ import java_project_yn.bank_system.data.repo.UserRepository;
 import java_project_yn.bank_system.dto.RegisterDTO;
 import java_project_yn.bank_system.exception.BusinessRuleException;
 import java_project_yn.bank_system.exception.DuplicateEntityException;
+import java_project_yn.bank_system.service.AuditService;
 import java_project_yn.bank_system.service.RegistrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +24,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RoleRepository roleRepository;
     private final ClientRepository clientRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
     @Override
     @Transactional
@@ -52,5 +54,8 @@ public class RegistrationServiceImpl implements RegistrationService {
         client.setEgn(dto.getEgn());
         client.setUsername(dto.getUsername());
         clientRepository.save(client);
+
+        auditService.log(dto.getUsername(), "Регистрация", "Нов клиент се регистрира: "
+                + dto.getFirstName() + " " + dto.getLastName());
     }
 }

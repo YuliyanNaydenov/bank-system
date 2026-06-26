@@ -2,6 +2,7 @@ package java_project_yn.bank_system.data.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 /**
@@ -20,6 +21,7 @@ public class CompanyClient extends Client {
 
     @Column(name = "eik", unique = true)
     @NotBlank(message = "ЕИК е задължителен")
+    @Pattern(regexp = "\\d{9}|\\d{13}", message = "ЕИК трябва да е 9 или 13 цифри")
     private String eik;
 
     @NotBlank(message = "Представителят е задължителен")

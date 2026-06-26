@@ -38,7 +38,7 @@
                         <div class="invalid-feedback" th:errors="*{annualInterestRate}"></div>
                     </div>
                     <div class="col-sm-4">
-                        <label class="form-label fw-semibold">Максимална сума (лв.)</label>
+                        <label class="form-label fw-semibold">Максимална сума (€)</label>
                         <input type="number" step="0.01" min="0.01" class="form-control" th:field="*{maxAmount}"
                                th:classappend="${#fields.hasErrors('maxAmount')} ? 'is-invalid'"/>
                         <div class="invalid-feedback" th:errors="*{maxAmount}"></div>

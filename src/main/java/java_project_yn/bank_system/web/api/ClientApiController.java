@@ -22,7 +22,12 @@ public class ClientApiController {
     @GetMapping
     public List<ClientDTO> getAll(Authentication authentication) {
         if (isClientOnly(authentication)) {
-            return List.of(clientService.getClientByUsername(authentication.getName()));
+            try {
+                return List.of(clientService.getClientByUsername(authentication.getName()));
+            } catch (RuntimeException ex) {
+                // Клиент-потребител без свързан клиентски профил → празен списък
+                return List.of();
+            }
         }
         return clientService.getAllClients();
     }

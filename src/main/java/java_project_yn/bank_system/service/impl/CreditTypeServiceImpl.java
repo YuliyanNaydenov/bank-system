@@ -1,11 +1,14 @@
 package java_project_yn.bank_system.service.impl;
 
 import java_project_yn.bank_system.data.entity.CreditType;
+import java_project_yn.bank_system.data.repo.CreditRepository;
 import java_project_yn.bank_system.data.repo.CreditTypeRepository;
 import java_project_yn.bank_system.dto.CreateCreditTypeDTO;
 import java_project_yn.bank_system.dto.CreditTypeDTO;
+import java_project_yn.bank_system.exception.BusinessRuleException;
 import java_project_yn.bank_system.exception.CreditTypeNotFoundException;
 import java_project_yn.bank_system.exception.DuplicateEntityException;
+import java_project_yn.bank_system.service.AuditService;
 import java_project_yn.bank_system.service.CreditTypeService;
 import java_project_yn.bank_system.util.MapperUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +26,9 @@ import java.util.List;
 public class CreditTypeServiceImpl implements CreditTypeService {
 
     private final CreditTypeRepository creditTypeRepository;
+    private final CreditRepository creditRepository;
     private final MapperUtil mapperUtil;
+    private final AuditService auditService;
 
     @Override
     @PreAuthorize("isAuthenticated()")
@@ -49,7 +54,9 @@ public class CreditTypeServiceImpl implements CreditTypeService {
                 .maxAmount(dto.getMaxAmount())
                 .maxTermMonths(dto.getMaxTermMonths())
                 .build();
-        return mapperUtil.getModelMapper().map(creditTypeRepository.save(type), CreditTypeDTO.class);
+        CreditTypeDTO saved = mapperUtil.getModelMapper().map(creditTypeRepository.save(type), CreditTypeDTO.class);
+        auditService.log("Нов кредитен вид", saved.getName());
+        return saved;
     }
 
     @Override
@@ -65,7 +72,9 @@ public class CreditTypeServiceImpl implements CreditTypeService {
         type.setAnnualInterestRate(dto.getAnnualInterestRate());
         type.setMaxAmount(dto.getMaxAmount());
         type.setMaxTermMonths(dto.getMaxTermMonths());
-        return mapperUtil.getModelMapper().map(creditTypeRepository.save(type), CreditTypeDTO.class);
+        CreditTypeDTO saved = mapperUtil.getModelMapper().map(creditTypeRepository.save(type), CreditTypeDTO.class);
+        auditService.log("Редактиран кредитен вид", saved.getName());
+        return saved;
     }
 
     @Override
@@ -74,7 +83,11 @@ public class CreditTypeServiceImpl implements CreditTypeService {
         if (!creditTypeRepository.existsById(id)) {
             throw new CreditTypeNotFoundException("Кредитен вид с id=" + id + " не е намерен!");
         }
+        if (creditRepository.existsByCreditType_Id(id)) {
+            throw new BusinessRuleException("Кредитен вид с отпуснати кредити не може да бъде изтрит!");
+        }
         creditTypeRepository.deleteById(id);
+        auditService.log("Изтрит кредитен вид", "id=" + id);
     }
 
     private CreditType getEntity(long id) {

@@ -19,6 +19,13 @@
         </div>
     </div>
 
+    <form th:action="@{/clients}" method="get" class="d-flex gap-2 mb-3" style="max-width:520px">
+        <input type="text" name="q" class="form-control" placeholder="Търсене по име, ЕГН или ЕИК…"
+               th:value="${q}"/>
+        <button type="submit" class="btn btn-dark"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a th:if="${q != null and !q.isEmpty()}" th:href="@{/clients}" class="btn btn-outline-secondary">Изчисти</a>
+    </form>
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">

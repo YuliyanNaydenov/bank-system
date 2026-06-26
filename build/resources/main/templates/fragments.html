@@ -19,11 +19,22 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" th:href="@{/css/app.css}">
+    <script>
+        // Прилага запазената тема преди рендиране (без проблясък)
+        (function () {
+            try {
+                if (localStorage.getItem('theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
 </head>
 
 <!-- ── NAVBAR ─────────────────────────────────────────────────────────── -->
 <nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-light app-navbar mb-4 sticky-top">
-    <div class="container">
+    <div class="container-fluid px-4">
         <a class="navbar-brand" th:href="@{/}">
             <i class="fa-solid fa-building-columns me-1"></i> Банкова система
         </a>
@@ -50,6 +61,11 @@
                         <i class="fa-solid fa-hand-holding-dollar"></i> Кредити
                     </a>
                 </li>
+                <li class="nav-item" sec:authorize="hasAnyAuthority('admin','employee')">
+                    <a class="nav-link nav-auto-active" th:href="@{/statistics}">
+                        <i class="fa-solid fa-chart-line"></i> Справки
+                    </a>
+                </li>
                 <li class="nav-item" sec:authorize="hasAuthority('admin')">
                     <a class="nav-link nav-auto-active" th:href="@{/credit-types}">
                         <i class="fa-solid fa-sliders"></i> Кредитни видове
@@ -58,6 +74,11 @@
                 <li class="nav-item" sec:authorize="hasAuthority('admin')">
                     <a class="nav-link nav-auto-active" th:href="@{/employees}">
                         <i class="fa-solid fa-user-tie"></i> Служители
+                    </a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('admin')">
+                    <a class="nav-link nav-auto-active" th:href="@{/audit}">
+                        <i class="fa-solid fa-clipboard-list"></i> Журнал
                     </a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAuthority('client')">
@@ -69,13 +90,18 @@
 
             <ul class="navbar-nav align-items-center gap-2">
                 <li class="nav-item" sec:authorize="isAuthenticated()">
-                    <span class="navbar-user">
+                    <a class="navbar-user text-decoration-none" th:href="@{/profile}">
                         <i class="fa-solid fa-circle-user me-1"></i>
                         <sec:authentication property="name"/>
                         <span sec:authorize="hasAuthority('admin')" class="role-badge role-badge--admin">Администратор</span>
                         <span sec:authorize="hasAuthority('employee')" class="role-badge role-badge--employee">Служител</span>
                         <span sec:authorize="hasAuthority('client')" class="role-badge role-badge--client">Клиент</span>
-                    </span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <button id="themeToggle" type="button" class="btn btn-outline-secondary btn-sm" aria-label="Смяна на тема">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
                 </li>
                 <li class="nav-item" sec:authorize="isAuthenticated()">
                     <form th:action="@{/logout}" method="post" class="m-0">
@@ -112,10 +138,25 @@
     <div th:if="${param.paid}" class="app-toast">
         <i class="fa-solid fa-money-bill-wave text-success"></i><span>Вноската е отбелязана като платена.</span>
     </div>
+    <div th:if="${param.deposited}" class="app-toast">
+        <i class="fa-solid fa-arrow-down text-success"></i><span>Депозитът е извършен.</span>
+    </div>
+    <div th:if="${param.withdrawn}" class="app-toast">
+        <i class="fa-solid fa-arrow-up text-success"></i><span>Тегленето е извършено.</span>
+    </div>
+    <div th:if="${param.transferred}" class="app-toast">
+        <i class="fa-solid fa-right-left text-success"></i><span>Преводът е извършен.</span>
+    </div>
+    <div th:if="${param.pwchanged}" class="app-toast">
+        <i class="fa-solid fa-key text-success"></i><span>Паролата е сменена.</span>
+    </div>
+    <div th:if="${param.cleared}" class="app-toast">
+        <i class="fa-solid fa-broom text-success"></i><span>Журналът е изчистен.</span>
+    </div>
 </div>
 
 <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
-<footer th:fragment="footer" class="bg-white text-center py-3 mt-5 text-muted">
+<footer th:fragment="footer" class="bg-white text-center py-3 text-muted">
     <i class="fa-solid fa-building-columns text-dark me-1"></i>
     CSCB634 Банкова система &copy; 2026
 </footer>
@@ -155,6 +196,33 @@
                     link.classList.add('active');
                 }
             });
+        })();
+
+        // Превключвател светла/тъмна тема
+        (function () {
+            const root = document.documentElement;
+            const btn = document.getElementById('themeToggle');
+            function syncIcon() {
+                if (!btn) return;
+                const dark = root.getAttribute('data-theme') === 'dark';
+                btn.innerHTML = dark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+            }
+            syncIcon();
+            if (btn) {
+                btn.addEventListener('click', function () {
+                    const dark = root.getAttribute('data-theme') === 'dark';
+                    if (dark) {
+                        root.removeAttribute('data-theme');
+                        root.removeAttribute('data-bs-theme');
+                        try { localStorage.setItem('theme', 'light'); } catch (e) {}
+                    } else {
+                        root.setAttribute('data-theme', 'dark');
+                        root.setAttribute('data-bs-theme', 'dark');
+                        try { localStorage.setItem('theme', 'dark'); } catch (e) {}
+                    }
+                    syncIcon();
+                });
+            }
         })();
 
         // Toast обратна връзка — автоматично изчезване

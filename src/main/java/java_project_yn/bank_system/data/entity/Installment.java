@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 /**
  * Една вноска от погасителния план (анюитетен метод).
@@ -27,6 +28,10 @@ public class Installment extends BaseEntity {
     /** Пореден номер на месеца (1..n). */
     @Column(name = "month_number", nullable = false)
     private int monthNumber;
+
+    /** Падеж на вноската. */
+    @Column(name = "due_date")
+    private LocalDate dueDate;
 
     @Column(name = "payment_amount", nullable = false, precision = 19, scale = 2)
     private BigDecimal paymentAmount;

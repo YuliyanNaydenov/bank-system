@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Банкова сметка — IBAN, наличност, статус и притежател (клиент).
@@ -26,7 +28,7 @@ public class Account extends BaseEntity {
     private BigDecimal balance = BigDecimal.ZERO;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private AccountStatus status = AccountStatus.ACTIVE;
 
@@ -34,4 +36,9 @@ public class Account extends BaseEntity {
     @JoinColumn(name = "owner_id")
     @JsonIgnore
     private Client owner;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    @Builder.Default
+    private Set<Transaction> transactions = new HashSet<>();
 }

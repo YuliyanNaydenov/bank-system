@@ -1,26 +1,35 @@
 package java_project_yn.bank_system.service.impl;
 
 import java_project_yn.bank_system.data.entity.*;
+import java_project_yn.bank_system.data.repo.AccountRepository;
 import java_project_yn.bank_system.data.repo.ClientRepository;
 import java_project_yn.bank_system.data.repo.CreditRepository;
 import java_project_yn.bank_system.data.repo.CreditTypeRepository;
 import java_project_yn.bank_system.data.repo.InstallmentRepository;
+import java_project_yn.bank_system.data.repo.TransactionRepository;
 import java_project_yn.bank_system.dto.CreateCreditDTO;
 import java_project_yn.bank_system.dto.CreditDTO;
 import java_project_yn.bank_system.exception.BusinessRuleException;
+import java_project_yn.bank_system.service.AuditService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class CreditServiceImplTest {
@@ -29,9 +38,31 @@ class CreditServiceImplTest {
     @Mock private CreditTypeRepository creditTypeRepository;
     @Mock private ClientRepository clientRepository;
     @Mock private InstallmentRepository installmentRepository;
+    @Mock private AccountRepository accountRepository;
+    @Mock private TransactionRepository transactionRepository;
+    @Mock private AuditService auditService;
 
     @InjectMocks
     private CreditServiceImpl creditService;
+
+    @AfterEach
+    void clearSecurity() {
+        SecurityContextHolder.clearContext();
+    }
+
+    private void authenticateStaff() {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken("emp", "x",
+                        List.of(new SimpleGrantedAuthority("employee"))));
+    }
+
+    private Account accountWith(String balance) {
+        Account a = Account.builder()
+                .iban("BG1").balance(new BigDecimal(balance))
+                .status(AccountStatus.ACTIVE).owner(client).build();
+        a.setId(10L);
+        return a;
+    }
 
     private IndividualClient client;
     private CreditType consumerType;
@@ -112,6 +143,112 @@ class CreditServiceImplTest {
 
         assertEquals(CreditStatus.PAID.name(), result.getStatus());
         assertEquals(2, result.getPaidInstallments());
+    }
+
+    @Test
+    void grantCredit_setsDueDates() {
+        CreateCreditDTO dto = CreateCreditDTO.builder()
+                .clientId(1L).creditTypeId(1L)
+                .amount(new BigDecimal("10000")).termMonths(12).build();
+        given(clientRepository.findById(1L)).willReturn(Optional.of(client));
+        given(creditTypeRepository.findById(1L)).willReturn(Optional.of(consumerType));
+        given(creditRepository.save(any(Credit.class))).willAnswer(inv -> inv.getArgument(0));
+
+        CreditDTO result = creditService.grantCredit(dto);
+
+        assertNotNull(result.getInstallments().get(0).getDueDate());
+        assertFalse(result.isHasOverdue());
+    }
+
+    @Test
+    void earlyPayoff_marksAllPaidAndStatusPaid() {
+        Credit credit = buildCreditWithTwoInstallments();
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+        given(creditRepository.save(any(Credit.class))).willAnswer(inv -> inv.getArgument(0));
+
+        CreditDTO result = creditService.earlyPayoff(1L);
+
+        assertEquals(CreditStatus.PAID.name(), result.getStatus());
+        assertEquals(2, result.getPaidInstallments());
+    }
+
+    @Test
+    void cancelCredit_withPaidInstallment_throws() {
+        Credit credit = buildCreditWithTwoInstallments();
+        credit.getInstallments().get(0).setPaid(true);
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+
+        assertThrows(BusinessRuleException.class, () -> creditService.cancelCredit(1L));
+    }
+
+    @Test
+    void cancelCredit_noPaidInstallments_setsCancelled() {
+        Credit credit = buildCreditWithTwoInstallments();
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+        given(creditRepository.save(any(Credit.class))).willAnswer(inv -> inv.getArgument(0));
+
+        CreditDTO result = creditService.cancelCredit(1L);
+
+        assertEquals(CreditStatus.CANCELLED.name(), result.getStatus());
+    }
+
+    @Test
+    void payFromAccount_debitsAccountAndMarksPaid() {
+        authenticateStaff();
+        Credit credit = buildCreditWithTwoInstallments();
+        Account account = accountWith("600.00");
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+        given(accountRepository.findById(10L)).willReturn(Optional.of(account));
+        given(transactionRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+        given(creditRepository.save(any(Credit.class))).willAnswer(inv -> inv.getArgument(0));
+
+        CreditDTO result = creditService.payInstallmentFromAccount(1L, 101L, 10L);
+
+        assertEquals(0, account.getBalance().compareTo(new BigDecimal("90.00")));
+        assertTrue(credit.getInstallments().get(0).isPaid());
+        assertEquals(1, result.getPaidInstallments());
+        verify(transactionRepository).save(any());
+    }
+
+    @Test
+    void payFromAccount_insufficientFunds_throws() {
+        authenticateStaff();
+        Credit credit = buildCreditWithTwoInstallments();
+        Account account = accountWith("100.00");
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+        given(accountRepository.findById(10L)).willReturn(Optional.of(account));
+
+        assertThrows(BusinessRuleException.class,
+                () -> creditService.payInstallmentFromAccount(1L, 101L, 10L));
+    }
+
+    @Test
+    void payFromAccount_closedAccount_throws() {
+        authenticateStaff();
+        Credit credit = buildCreditWithTwoInstallments();
+        Account account = accountWith("600.00");
+        account.setStatus(AccountStatus.CLOSED);
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+        given(accountRepository.findById(10L)).willReturn(Optional.of(account));
+
+        assertThrows(BusinessRuleException.class,
+                () -> creditService.payInstallmentFromAccount(1L, 101L, 10L));
+    }
+
+    @Test
+    void payFromAccount_lastInstallment_marksCreditPaid() {
+        authenticateStaff();
+        Credit credit = buildCreditWithTwoInstallments();
+        credit.getInstallments().get(0).setPaid(true);
+        Account account = accountWith("600.00");
+        given(creditRepository.findById(1L)).willReturn(Optional.of(credit));
+        given(accountRepository.findById(10L)).willReturn(Optional.of(account));
+        given(transactionRepository.save(any())).willAnswer(inv -> inv.getArgument(0));
+        given(creditRepository.save(any(Credit.class))).willAnswer(inv -> inv.getArgument(0));
+
+        CreditDTO result = creditService.payInstallmentFromAccount(1L, 102L, 10L);
+
+        assertEquals(CreditStatus.PAID.name(), result.getStatus());
     }
 
     private Credit buildCreditWithTwoInstallments() {

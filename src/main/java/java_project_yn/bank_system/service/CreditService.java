@@ -14,8 +14,17 @@ public interface CreditService {
     /** Отпуска кредит и генерира анюитетен погасителен план. */
     CreditDTO grantCredit(CreateCreditDTO dto);
 
-    /** Отбелязва вноска като платена; при последна вноска маркира кредита като изплатен. */
+    /** Отбелязва вноска като платена (без движение по сметка — напр. касово плащане). */
     CreditDTO payInstallment(long creditId, long installmentId);
+
+    /** Плаща вноска чрез теглене от посочена сметка (атомарно). */
+    CreditDTO payInstallmentFromAccount(long creditId, long installmentId, long accountId);
+
+    /** Предсрочно погасяване — изплаща всички оставащи вноски наведнъж. */
+    CreditDTO earlyPayoff(long creditId);
+
+    /** Отказ / прекратяване на кредит (ако не е изплатен). */
+    CreditDTO cancelCredit(long creditId);
 
     void deleteCredit(long id);
 }

@@ -1,6 +1,7 @@
 package java_project_yn.bank_system.web.view;
 
 import jakarta.validation.Valid;
+import java_project_yn.bank_system.dto.AccountDTO;
 import java_project_yn.bank_system.dto.CreateAccountDTO;
 import java_project_yn.bank_system.service.AccountService;
 import java_project_yn.bank_system.service.ClientService;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/accounts")
@@ -19,9 +23,29 @@ public class AccountViewController {
     private final ClientService clientService;
 
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("accounts", accountService.getAllAccounts());
+    public String list(@RequestParam(required = false) String q,
+                       @RequestParam(required = false) String status,
+                       Model model) {
+        List<AccountDTO> accounts = accountService.getAllAccounts();
+        if (q != null && !q.isBlank()) {
+            String s = q.trim().toLowerCase();
+            accounts = accounts.stream()
+                    .filter(a -> contains(a.getIban(), s) || contains(a.getOwnerName(), s))
+                    .collect(Collectors.toList());
+        }
+        if (status != null && !status.isBlank()) {
+            accounts = accounts.stream()
+                    .filter(a -> status.equals(a.getStatus()))
+                    .collect(Collectors.toList());
+        }
+        model.addAttribute("accounts", accounts);
+        model.addAttribute("q", q);
+        model.addAttribute("status", status);
         return "accounts/accounts";
+    }
+
+    private boolean contains(String value, String search) {
+        return value != null && value.toLowerCase().contains(search);
     }
 
     @GetMapping("/new")

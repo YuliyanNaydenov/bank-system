@@ -41,7 +41,7 @@ public class Credit extends BaseEntity {
     private LocalDate startDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 20)
     @Builder.Default
     private CreditStatus status = CreditStatus.ACTIVE;
 

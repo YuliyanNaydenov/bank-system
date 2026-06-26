@@ -26,5 +26,6 @@ public class CreditDTO {
     private BigDecimal totalToRepay;
     private BigDecimal remainingBalance;
     private int paidInstallments;
+    private boolean hasOverdue;
     private List<InstallmentDTO> installments;
 }

@@ -14,6 +14,21 @@
         </a>
     </div>
 
+    <form th:action="@{/credits}" method="get" class="d-flex flex-wrap gap-2 mb-3" style="max-width:680px">
+        <input type="text" name="q" class="form-control" style="max-width:300px"
+               placeholder="Търсене по клиент…" th:value="${q}"/>
+        <select name="status" class="form-select" style="max-width:180px">
+            <option value="" th:selected="${status == null or status.isEmpty()}">Всички статуси</option>
+            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Активни</option>
+            <option value="OVERDUE" th:selected="${status == 'OVERDUE'}">Просрочени</option>
+            <option value="PAID" th:selected="${status == 'PAID'}">Изплатени</option>
+            <option value="CANCELLED" th:selected="${status == 'CANCELLED'}">Отказани</option>
+        </select>
+        <button type="submit" class="btn btn-dark"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a th:if="${(q != null and !q.isEmpty()) or (status != null and !status.isEmpty())}"
+           th:href="@{/credits}" class="btn btn-outline-secondary">Изчисти</a>
+    </form>
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
@@ -28,13 +43,15 @@
                         <td class="text-muted" th:text="${c.id}"></td>
                         <td th:text="${c.clientName}"></td>
                         <td th:text="${c.creditTypeName}"></td>
-                        <td th:text="${#numbers.formatDecimal(c.amount,1,2)} + ' лв.'"></td>
+                        <td th:text="${#numbers.formatDecimal(c.amount,1,2)} + ' €'"></td>
                         <td th:text="${c.termMonths} + ' мес.'"></td>
-                        <td th:text="${#numbers.formatDecimal(c.monthlyPayment,1,2)} + ' лв.'"></td>
+                        <td th:text="${#numbers.formatDecimal(c.monthlyPayment,1,2)} + ' €'"></td>
                         <td th:text="${c.paidInstallments} + '/' + ${c.termMonths}"></td>
                         <td>
-                            <span th:if="${c.status == 'ACTIVE'}" class="badge bg-warning text-dark">Активен</span>
+                            <span th:if="${c.status == 'ACTIVE' and !c.hasOverdue}" class="badge bg-warning text-dark">Активен</span>
+                            <span th:if="${c.status == 'ACTIVE' and c.hasOverdue}" class="badge bg-danger">Просрочен</span>
                             <span th:if="${c.status == 'PAID'}" class="badge bg-success">Изплатен</span>
+                            <span th:if="${c.status == 'CANCELLED'}" class="badge bg-secondary">Отказан</span>
                         </td>
                         <td>
                             <a th:href="@{/credits/{id}(id=${c.id})}" class="btn btn-outline-dark btn-action me-1">

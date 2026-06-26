@@ -20,4 +20,10 @@ public interface UserService extends UserDetailsService {
 
     /** Активира / деактивира служител (деактивиран не може да влиза). */
     void setEmployeeEnabled(long id, boolean enabled);
+
+    /** Смяна на собствената парола след проверка на текущата. */
+    void changePassword(String username, String currentPassword, String newPassword);
+
+    /** Създава вход (роля "client") за клиент, добавен от служител/админ. */
+    void createClientLogin(String username, String rawPassword);
 }

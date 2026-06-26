@@ -67,11 +67,14 @@ public class SecurityConfig {
                         // ── View endpoints ──────────────────────────────────
                         .requestMatchers("/", "/index").authenticated()
                         .requestMatchers("/employees/**").hasAuthority("admin")
+                        .requestMatchers("/audit/**").hasAuthority("admin")
                         .requestMatchers("/credit-types/**").hasAuthority("admin")
-                        .requestMatchers("/clients/**", "/accounts/**", "/credits/**").hasAnyAuthority("admin", "employee")
+                        .requestMatchers("/clients/**", "/accounts/**", "/credits/**", "/statistics/**").hasAnyAuthority("admin", "employee")
                         .requestMatchers("/my/**").hasAuthority("client")
                         .anyRequest().authenticated()
                 )
+                // CSRF остава включен за формите; изключен само за REST API-то
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/", true)

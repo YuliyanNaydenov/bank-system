@@ -14,6 +14,19 @@
         </a>
     </div>
 
+    <form th:action="@{/accounts}" method="get" class="d-flex flex-wrap gap-2 mb-3" style="max-width:680px">
+        <input type="text" name="q" class="form-control" style="max-width:300px"
+               placeholder="Търсене по IBAN или притежател…" th:value="${q}"/>
+        <select name="status" class="form-select" style="max-width:170px">
+            <option value="" th:selected="${status == null or status.isEmpty()}">Всички статуси</option>
+            <option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Активни</option>
+            <option value="CLOSED" th:selected="${status == 'CLOSED'}">Закрити</option>
+        </select>
+        <button type="submit" class="btn btn-dark"><i class="fa-solid fa-magnifying-glass"></i></button>
+        <a th:if="${(q != null and !q.isEmpty()) or (status != null and !status.isEmpty())}"
+           th:href="@{/accounts}" class="btn btn-outline-secondary">Изчисти</a>
+    </form>
+
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
@@ -27,12 +40,16 @@
                         <td class="text-muted" th:text="${a.id}"></td>
                         <td><code th:text="${a.iban}"></code></td>
                         <td th:text="${a.ownerName}"></td>
-                        <td th:text="${#numbers.formatDecimal(a.balance,1,2)} + ' лв.'"></td>
+                        <td th:text="${#numbers.formatDecimal(a.balance,1,2)} + ' €'"></td>
                         <td>
                             <span th:if="${a.status == 'ACTIVE'}" class="badge bg-success">Активна</span>
                             <span th:if="${a.status == 'CLOSED'}" class="badge bg-secondary">Закрита</span>
                         </td>
                         <td>
+                            <a th:href="@{/accounts/{id}/transactions(id=${a.id})}"
+                               class="btn btn-outline-dark btn-action me-1">
+                                <i class="fa-solid fa-right-left me-1"></i>Транзакции
+                            </a>
                             <form th:if="${a.status == 'ACTIVE'}"
                                   th:action="@{/accounts/{id}/close(id=${a.id})}" method="post" class="d-inline"
                                   data-confirm="Закриване на сметката?">

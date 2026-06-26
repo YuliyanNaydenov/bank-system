@@ -2,7 +2,7 @@ package java_project_yn.bank_system.data.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 
 /**
@@ -25,7 +25,7 @@ public class IndividualClient extends Client {
 
     @Column(name = "egn", unique = true)
     @NotBlank(message = "ЕГН е задължително")
-    @Size(min = 10, max = 10, message = "ЕГН трябва да е точно 10 цифри")
+    @Pattern(regexp = "\\d{10}", message = "ЕГН трябва да съдържа точно 10 цифри")
     private String egn;
 
     @Override

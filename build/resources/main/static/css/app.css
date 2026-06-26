@@ -49,6 +49,8 @@ body {
     font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 h1, h2, h3, h4, h5 {
@@ -85,13 +87,30 @@ code {
     color: var(--brand-600);
     font-weight: 700;
     letter-spacing: -0.02em;
+    font-size: 1.02rem;
+    margin-right: .6rem;
+}
+.app-navbar .nav-link {
+    font-size: .92rem;
 }
 .app-navbar .nav-link {
     color: var(--muted);
     font-weight: 500;
     border-radius: 8px;
-    padding: .4rem .7rem !important;
+    padding: .4rem .6rem !important;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
     transition: color 160ms ease, background-color 160ms ease;
+}
+.app-navbar .nav-link i {
+    margin-right: .4rem;
+}
+/* Менюто се пренася на нов ред при тясно, вместо да се свива */
+.app-navbar .navbar-nav {
+    flex-wrap: wrap;
+    row-gap: .25rem;
+    align-items: center;
 }
 .app-navbar .nav-link:hover {
     color: var(--brand-700);
@@ -465,10 +484,11 @@ a:active > .stat-card {
     color: #cbd5e1;
 }
 
-/* ── Footer ──────────────────────────────────────────────────────────────── */
+/* ── Footer (залепен в дъното) ───────────────────────────────────────────── */
 footer {
     color: var(--muted);
     font-size: .9rem;
+    margin-top: auto;
 }
 
 /* ── Toast обратна връзка ────────────────────────────────────────────────── */
@@ -509,6 +529,99 @@ footer {
 }
 
 /* ── Достъпност: prefers-reduced-motion ──────────────────────────────────── */
+/* ═══ Тъмна тема ═══════════════════════════════════════════════════════════ */
+html[data-theme="dark"] {
+    --ink: #e5e7eb;
+    --muted: #9ca3af;
+    --line: #1f2937;
+    --line-2: #374151;
+    --surface: #111827;
+    --bg: #0b1220;
+}
+html[data-theme="dark"] body {
+    background-color: var(--bg);
+    color: var(--ink);
+}
+html[data-theme="dark"] .app-navbar {
+    background: rgba(17, 24, 39, .9);
+    border-bottom-color: var(--line);
+}
+html[data-theme="dark"] .kv-tile {
+    background: #0b1220;
+    border-color: var(--line);
+}
+html[data-theme="dark"] .input-group-text {
+    background: #0b1220;
+    border-color: var(--line-2);
+    color: var(--muted);
+}
+html[data-theme="dark"] .card-header.bg-dark,
+html[data-theme="dark"] .card-header.bg-success {
+    background: var(--surface) !important;
+    color: var(--ink) !important;
+    border-bottom-color: var(--line);
+}
+html[data-theme="dark"] .table-dark {
+    --bs-table-bg: #0b1220;
+    --bs-table-color: var(--muted);
+    --bs-table-border-color: var(--line);
+}
+html[data-theme="dark"] .table-hover > tbody > tr:hover > * {
+    background-color: rgba(16, 185, 129, .12);
+}
+html[data-theme="dark"] tr.table-success {
+    --bs-table-bg: rgba(16, 185, 129, .12);
+}
+html[data-theme="dark"] .empty-state i {
+    color: #475569;
+}
+/* Footer (има bg-white клас) → тъмен */
+html[data-theme="dark"] footer,
+html[data-theme="dark"] footer.bg-white {
+    background-color: var(--surface) !important;
+    color: var(--muted);
+    border-top: 1px solid rgba(255, 255, 255, .14);
+}
+html[data-theme="dark"] footer i {
+    color: var(--ink);
+}
+/* Етикети на формите — четим светъл текст */
+html[data-theme="dark"] .form-label {
+    color: #cbd5e1;
+}
+html[data-theme="dark"] .form-text {
+    color: var(--muted);
+}
+/* Видими граници на box-овете за по-добра четимост */
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .kv-tile,
+html[data-theme="dark"] .metric-card,
+html[data-theme="dark"] .app-toast {
+    border: 1px solid rgba(255, 255, 255, .16);
+}
+html[data-theme="dark"] .card-header {
+    border-bottom: 1px solid rgba(255, 255, 255, .14);
+}
+/* Светлите алерти (info кутии във формите) → тъмни и четими */
+html[data-theme="dark"] .alert-light {
+    background-color: #0b1220;
+    border-color: rgba(255, 255, 255, .14);
+    color: var(--ink);
+}
+/* Неутрални / outline бутони — да не светят бяло в тъмно */
+html[data-theme="dark"] .btn-outline-secondary:hover,
+html[data-theme="dark"] .btn-outline-dark:hover {
+    background-color: #1f2937 !important;
+    color: var(--ink) !important;
+}
+html[data-theme="dark"] .btn-action.btn-outline-dark {
+    background-color: #1f2937 !important;
+    color: #cbd5e1 !important;
+}
+html[data-theme="dark"] .btn-action.btn-outline-dark:hover {
+    background-color: #374151 !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .btn,
     .stat-card,
