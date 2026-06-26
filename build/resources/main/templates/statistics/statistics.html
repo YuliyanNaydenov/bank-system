@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Справки')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-chart-line"></i> Справки</h2>
+    </div>
+
+    <div class="kv-grid mb-4">
+        <div class="kv-tile">
+            <div class="kv-label">Клиенти</div>
+            <div class="kv-value" th:text="${stats.totalClients}">0</div>
+        </div>
+        <div class="kv-tile">
+            <div class="kv-label">Сметки (активни)</div>
+            <div class="kv-value" th:text="${stats.totalAccounts} + ' (' + ${stats.activeAccounts} + ')'">0</div>
+        </div>
+        <div class="kv-tile">
+            <div class="kv-label">Активни кредити</div>
+            <div class="kv-value" th:text="${stats.activeCredits}">0</div>
+        </div>
+        <div class="kv-tile">
+            <div class="kv-label">Изплатени кредити</div>
+            <div class="kv-value" th:text="${stats.paidCredits}">0</div>
+        </div>
+        <div class="kv-tile">
+            <div class="kv-label">Обща наличност</div>
+            <div class="kv-value accent" th:text="${#numbers.formatDecimal(stats.totalBalance,1,2)} + ' €'">0</div>
+        </div>
+        <div class="kv-tile">
+            <div class="kv-label">Раздадени кредити</div>
+            <div class="kv-value" th:text="${#numbers.formatDecimal(stats.totalGranted,1,2)} + ' €'">0</div>
+        </div>
+    </div>
+
+    <div class="card" th:if="${!#lists.isEmpty(stats.creditsByType)}">
+        <div class="card-header bg-dark text-white">
+            <i class="fa-solid fa-chart-column me-1"></i>Кредити по вид
+        </div>
+        <div class="card-body">
+            <canvas id="creditsByTypeChart" height="110"></canvas>
+            <div id="chartData" style="display:none">
+                <span class="cd-row" th:each="p : ${stats.creditsByType}"
+                      th:attr="data-label=${p.label},data-value=${p.value}"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" th:if="${#lists.isEmpty(stats.creditsByType)}">
+        <div class="card-body">
+            <div class="empty-state"><i class="fa-solid fa-chart-column"></i><br>Все още няма отпуснати кредити.</div>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+<th:block th:if="${!#lists.isEmpty(stats.creditsByType)}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const labels = [];
+            const values = [];
+            document.querySelectorAll('#chartData .cd-row').forEach(function (r) {
+                labels.push(r.getAttribute('data-label'));
+                values.push(Number(r.getAttribute('data-value')));
+            });
+            const el = document.getElementById('creditsByTypeChart');
+            if (!el || typeof Chart === 'undefined') return;
+            new Chart(el, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Брой кредити',
+                        data: values,
+                        backgroundColor: '#10b981',
+                        borderRadius: 8,
+                        maxBarThickness: 64
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        })();
+    </script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="java_project_yn.bank_system.service.impl.AuditServiceImplTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-06-20T12:37:40" hostname="Yuliyans-MacBook-Air.local" time="0.026">
+  <properties/>
+  <testcase name="log_savesEntry()" classname="java_project_yn.bank_system.service.impl.AuditServiceImplTest" time="0.023"/>
+  <testcase name="getRecent_mapsToDto()" classname="java_project_yn.bank_system.service.impl.AuditServiceImplTest" time="0.001"/>
+  <testcase name="log_neverThrows_evenIfRepoFails()" classname="java_project_yn.bank_system.service.impl.AuditServiceImplTest" time="0.001"/>
+  <testcase name="clearAll_deletesThenLogsTheClear()" classname="java_project_yn.bank_system.service.impl.AuditServiceImplTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

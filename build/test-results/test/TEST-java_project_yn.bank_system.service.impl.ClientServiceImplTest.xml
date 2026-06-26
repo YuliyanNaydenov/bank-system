@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="java_project_yn.bank_system.service.impl.ClientServiceImplTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-06-20T12:37:40" hostname="Yuliyans-MacBook-Air.local" time="0.032">
+  <properties/>
+  <testcase name="createIndividual_mapsAndSaves()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.026"/>
+  <testcase name="getAllClients_returnsMappedList()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.001"/>
+  <testcase name="getClientById_notFound_throws()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.001"/>
+  <testcase name="updateIndividual_updatesFields()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.001"/>
+  <testcase name="deleteClient_notFound_throws()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.001"/>
+  <testcase name="createCompany_mapsAndSaves()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.0"/>
+  <testcase name="updateIndividual_onCompanyClient_throws()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.0"/>
+  <testcase name="updateCompany_updatesFields()" classname="java_project_yn.bank_system.service.impl.ClientServiceImplTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

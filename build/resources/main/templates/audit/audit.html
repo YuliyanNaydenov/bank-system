@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Журнал')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-clipboard-list"></i> Журнал на действията</h2>
+        <form th:if="${!#lists.isEmpty(logs)}" th:action="@{/audit/clear}" method="post"
+              data-confirm="Изчистване на целия журнал? Това действие е необратимо.">
+            <button type="submit" class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-trash me-1"></i>Изчисти журнала
+            </button>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Дата и час</th><th>Потребител</th><th>Действие</th><th>Детайли</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="l : ${logs}">
+                        <td th:text="${#temporals.format(l.timestamp, 'dd.MM.yyyy HH:mm:ss')}"></td>
+                        <td class="fw-semibold" th:text="${l.username}"></td>
+                        <td><span class="badge bg-secondary" th:text="${l.action}"></span></td>
+                        <td th:text="${l.details}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(logs)}">
+                        <td colspan="4"><div class="empty-state"><i class="fa-solid fa-clipboard-list"></i><br>Няма записи в журнала.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments :: confirmModal}"></div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

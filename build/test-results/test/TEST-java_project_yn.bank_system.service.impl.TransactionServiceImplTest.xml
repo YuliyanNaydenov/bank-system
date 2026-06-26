@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-06-20T12:37:41" hostname="Yuliyans-MacBook-Air.local" time="0.006">
+  <properties/>
+  <testcase name="transfer_toMissingIban_throws()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.001"/>
+  <testcase name="transfer_insufficientFunds_throws()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.0"/>
+  <testcase name="deposit_increasesBalance()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.001"/>
+  <testcase name="withdraw_insufficientFunds_throws()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.001"/>
+  <testcase name="clientCannotOperateOnForeignAccount()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.001"/>
+  <testcase name="withdraw_onClosedAccount_throws()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.0"/>
+  <testcase name="transfer_movesFunds()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.001"/>
+  <testcase name="clientCanOperateOnOwnAccount()" classname="java_project_yn.bank_system.service.impl.TransactionServiceImplTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

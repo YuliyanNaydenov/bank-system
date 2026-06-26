@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Моите транзакции')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar mb-3">
+        <h2><i class="fa-solid fa-right-left"></i> Транзакции</h2>
+        <a th:href="@{/my}" class="btn btn-outline-secondary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i>Към профила
+        </a>
+    </div>
+
+    <!-- Обобщение на сметката -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="kv-grid">
+                <div class="kv-tile">
+                    <div class="kv-label">IBAN</div>
+                    <div class="kv-value"><code th:text="${account.iban}"></code></div>
+                </div>
+                <div class="kv-tile">
+                    <div class="kv-label">Наличност</div>
+                    <div class="kv-value accent" th:text="${#numbers.formatDecimal(account.balance,1,2)} + ' €'"></div>
+                </div>
+                <div class="kv-tile">
+                    <div class="kv-label">Статус</div>
+                    <div class="kv-value">
+                        <span th:if="${account.status == 'ACTIVE'}" class="badge bg-success">Активна</span>
+                        <span th:if="${account.status == 'CLOSED'}" class="badge bg-secondary">Закрита</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Операции (само за активна сметка) -->
+    <div class="row g-3 mb-4" th:if="${account.status == 'ACTIVE'}">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white"><i class="fa-solid fa-arrow-up me-1"></i>Теглене</div>
+                <div class="card-body">
+                    <form th:action="@{/my/accounts/{id}/withdraw(id=${account.id})}" method="post">
+                        <label class="form-label fw-semibold">Сума (€)</label>
+                        <input type="number" step="0.01" min="0.01" name="amount" class="form-control mb-3" required/>
+                        <button type="submit" class="btn btn-dark w-100"><i class="fa-solid fa-minus me-1"></i>Изтегли</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white"><i class="fa-solid fa-right-left me-1"></i>Превод</div>
+                <div class="card-body">
+                    <form th:action="@{/my/accounts/{id}/transfer(id=${account.id})}" method="post">
+                        <label class="form-label fw-semibold">IBAN на получателя</label>
+                        <input type="text" name="toIban" class="form-control mb-2" required/>
+                        <label class="form-label fw-semibold">Сума (€)</label>
+                        <input type="number" step="0.01" min="0.01" name="amount" class="form-control mb-3" required/>
+                        <button type="submit" class="btn btn-dark w-100"><i class="fa-solid fa-paper-plane me-1"></i>Преведи</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- История -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <i class="fa-solid fa-clock-rotate-left me-1"></i>История на транзакциите
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Дата</th><th>Тип</th><th>Сума</th><th>Насрещен IBAN</th><th>Наличност след</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="t : ${transactions}">
+                        <td th:text="${#temporals.format(t.timestamp, 'dd.MM.yyyy HH:mm')}"></td>
+                        <td>
+                            <span th:if="${t.type == 'DEPOSIT'}" class="badge bg-success">Депозит</span>
+                            <span th:if="${t.type == 'WITHDRAWAL'}" class="badge bg-warning text-dark">Теглене</span>
+                            <span th:if="${t.type == 'TRANSFER_IN'}" class="badge bg-success">Входящ превод</span>
+                            <span th:if="${t.type == 'TRANSFER_OUT'}" class="badge bg-warning text-dark">Изходящ превод</span>
+                            <span th:if="${t.type == 'CREDIT_PAYMENT'}" class="badge bg-warning text-dark">Погасяване</span>
+                        </td>
+                        <td>
+                            <span th:if="${t.type == 'DEPOSIT' or t.type == 'TRANSFER_IN'}" class="text-success fw-semibold"
+                                  th:text="'+' + ${#numbers.formatDecimal(t.amount,1,2)} + ' €'"></span>
+                            <span th:unless="${t.type == 'DEPOSIT' or t.type == 'TRANSFER_IN'}" class="text-danger fw-semibold"
+                                  th:text="'-' + ${#numbers.formatDecimal(t.amount,1,2)} + ' €'"></span>
+                        </td>
+                        <td th:text="${t.counterpartyIban != null ? t.counterpartyIban : '—'}"></td>
+                        <td th:text="${#numbers.formatDecimal(t.balanceAfter,1,2)} + ' €'"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(transactions)}">
+                        <td colspan="5"><div class="empty-state"><i class="fa-solid fa-clock-rotate-left"></i><br>Няма движения по сметката.</div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>

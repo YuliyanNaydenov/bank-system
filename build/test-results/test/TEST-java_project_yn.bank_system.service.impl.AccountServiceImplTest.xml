@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="java_project_yn.bank_system.service.impl.AccountServiceImplTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-06-20T12:37:40" hostname="Yuliyans-MacBook-Air.local" time="0.087">
+  <properties/>
+  <testcase name="openAccount_generatesIbanAndSaves()" classname="java_project_yn.bank_system.service.impl.AccountServiceImplTest" time="0.083"/>
+  <testcase name="closeAccount_withBalance_throws()" classname="java_project_yn.bank_system.service.impl.AccountServiceImplTest" time="0.001"/>
+  <testcase name="deleteAccount_notFound_throws()" classname="java_project_yn.bank_system.service.impl.AccountServiceImplTest" time="0.001"/>
+  <testcase name="closeAccount_zeroBalance_setsClosed()" classname="java_project_yn.bank_system.service.impl.AccountServiceImplTest" time="0.001"/>
+  <testcase name="deleteAccount_found_deletes()" classname="java_project_yn.bank_system.service.impl.AccountServiceImplTest" time="0.001"/>
+  <testcase name="openAccount_clientNotFound_throws()" classname="java_project_yn.bank_system.service.impl.AccountServiceImplTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

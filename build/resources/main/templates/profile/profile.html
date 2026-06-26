@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head('Моят акаунт')}"></head>
+<body>
+<nav th:replace="~{fragments :: navbar}"></nav>
+<div th:replace="~{fragments :: toasts}"></div>
+<div class="container pb-4">
+
+    <div class="page-title-bar">
+        <h2><i class="fa-solid fa-id-card"></i> Моят акаунт</h2>
+    </div>
+
+    <!-- Данни за акаунта -->
+    <div class="card form-card mb-4">
+        <div class="card-header bg-dark text-white"><i class="fa-solid fa-user me-1"></i>Профил</div>
+        <div class="card-body">
+            <div class="kv-grid">
+                <div class="kv-tile">
+                    <div class="kv-label">Потребителско име</div>
+                    <div class="kv-value" th:text="${username}"></div>
+                </div>
+                <div class="kv-tile">
+                    <div class="kv-label">Роля</div>
+                    <div class="kv-value" th:text="${roles}"></div>
+                </div>
+                <div class="kv-tile" th:if="${client != null}">
+                    <div class="kv-label">Клиент</div>
+                    <div class="kv-value" th:text="${client.displayName}"></div>
+                </div>
+                <div class="kv-tile" th:if="${client != null}">
+                    <div class="kv-label">ЕГН / ЕИК</div>
+                    <div class="kv-value"><code th:text="${client.identifier}"></code></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Смяна на парола -->
+    <div class="card form-card">
+        <div class="card-header bg-dark text-white"><i class="fa-solid fa-key me-1"></i>Смяна на парола</div>
+        <div class="card-body">
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <form th:object="${form}" th:action="@{/profile/password}" method="post" novalidate>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold">Текуща парола</label>
+                        <input type="password" class="form-control" th:field="*{currentPassword}"
+                               th:classappend="${#fields.hasErrors('currentPassword')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{currentPassword}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Нова парола</label>
+                        <input type="password" class="form-control" th:field="*{newPassword}"
+                               th:classappend="${#fields.hasErrors('newPassword')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{newPassword}"></div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label fw-semibold">Повтори новата парола</label>
+                        <input type="password" class="form-control" th:field="*{confirmPassword}"
+                               th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid'"/>
+                        <div class="invalid-feedback" th:errors="*{confirmPassword}"></div>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-dark"><i class="fa-solid fa-floppy-disk me-1"></i>Смени паролата</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<footer th:replace="~{fragments :: footer}"></footer>
+<th:block th:replace="~{fragments :: scripts}"></th:block>
+</body>
+</html>
